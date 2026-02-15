@@ -56,7 +56,7 @@ Each session shows:
 
 ```
 # Search by project name
-/aristote
+/my-project
 
 # Search by model
 /opus

@@ -8,16 +8,16 @@ This document defines how to transform technical commit messages into user-frien
 
 | Technical Pattern | Product Message |
 |-------------------|-----------------|
-| `N+1 queries`, `DataLoader`, `batching` | "Chargement plus rapide des listes" |
-| `embeddings`, `vector search`, `pgvector` | "Recherche intelligente amelioree" |
-| `permissions`, `scope`, `access control` | "Correction d'un bug d'acces" |
-| `retry logic`, `resilience`, `P1001` | "Meilleure stabilite de connexion" |
-| `SSE`, `real-time`, `WebSocket` | "Mises a jour en temps reel" |
-| `cache`, `memoization` | "Performances ameliorees" |
-| `responsive`, `mobile` | "Meilleure experience mobile" |
-| `accessibility`, `a11y`, `WCAG` | "Accessibilite amelioree" |
-| `Sentry`, `monitoring`, `alerting` | "Meilleur suivi des erreurs" |
-| `validation`, `sanitization` | "Securite renforcee" |
+| `N+1 queries`, `DataLoader`, `batching` | "Faster list loading" |
+| `embeddings`, `vector search`, `pgvector` | "Improved intelligent search" |
+| `permissions`, `scope`, `access control` | "Fixed an access bug" |
+| `retry logic`, `resilience`, `connection errors` | "Better connection stability" |
+| `SSE`, `real-time`, `WebSocket` | "Real-time updates" |
+| `cache`, `memoization` | "Improved performance" |
+| `responsive`, `mobile` | "Better mobile experience" |
+| `accessibility`, `a11y`, `WCAG` | "Improved accessibility" |
+| `monitoring`, `alerting`, `error tracking` | "Better error tracking" |
+| `validation`, `sanitization` | "Enhanced security" |
 
 ### 2. DO NOT COMMUNICATE (Internal/Technical only)
 
@@ -40,32 +40,32 @@ These patterns should NOT appear in Slack announcements:
 
 | Technical | Product |
 |-----------|---------|
-| `CVE-XXXX-XXXXX` | "Correction d'une vulnerabilite de securite" |
-| `XSS`, `injection` | "Renforcement de la protection des donnees" |
-| `authentication`, `auth bypass` | "Securite de connexion amelioree" |
-| `CORS`, `CSRF` | "Protection contre les attaques web" |
+| `CVE-XXXX-XXXXX` | "Fixed a security vulnerability" |
+| `XSS`, `injection` | "Enhanced data protection" |
+| `authentication`, `auth bypass` | "Improved login security" |
+| `CORS`, `CSRF` | "Protection against web attacks" |
 
 ## Context-Aware Transformations
 
-### Session-related
-- "Fix session status transition" -> "Correction du suivi des seances"
-- "Add session conflict detection" -> "Detection automatique des conflits de planning"
-- "Improve visio sync" -> "Synchronisation video amelioree"
+### API-related
+- "Fix endpoint rate limiting" -> "Improved API stability"
+- "Add request validation" -> "Better input handling"
+- "Optimize query performance" -> "Faster data loading"
 
-### User-related
-- "Fix user profile access" -> "Correction de l'acces aux profils"
-- "Add accent-insensitive search" -> "Recherche amelioree (accents non sensibles)"
-- "Improve user loader performance" -> "Chargement des utilisateurs plus rapide"
+### Dashboard-related
+- "Fix dashboard widget rendering" -> "Fixed display issues on dashboard"
+- "Add export functionality" -> "New data export feature"
+- "Improve chart performance" -> "Faster dashboard loading"
 
-### Activity-related
-- "Fix activity prompt resolution" -> "Correction de l'affichage des activites"
-- "Add multi-level topics" -> "Organisation des activites par niveau amelioree"
-- "Improve embeddings generation" -> "Recherche d'activites similaires amelioree"
+### Notification-related
+- "Fix email delivery queue" -> "Improved notification reliability"
+- "Add webhook retry logic" -> "More reliable integrations"
+- "Optimize notification batching" -> "Faster notification delivery"
 
-### Chat-related
-- "Fix streaming race condition" -> "Stabilite du chat amelioree"
-- "Add vocal history" -> "Historique des messages vocaux"
-- "Prevent empty messages" -> "Correction des messages vides"
+### Search-related
+- "Fix search indexing race condition" -> "Improved search reliability"
+- "Add fuzzy matching" -> "Better search results"
+- "Optimize search query execution" -> "Faster search"
 
 ## Role-Based Impact
 
@@ -73,19 +73,19 @@ Always specify who is affected:
 
 | Impact | Roles |
 |--------|-------|
-| Dashboard changes | Tuteurs, Eleves, Admin |
-| Session management | Tuteurs, Admin |
-| Activity library | Tuteurs, Admin |
-| Chat/AI features | Tuteurs, Eleves |
-| Admin panel | Admin only |
-| Billing/Payment | Admin, Parents |
-| Reports/Analytics | Admin, Tuteurs |
+| Dashboard changes | End-users, Admins |
+| API changes | End-users, Power users |
+| Admin panel | Admins only |
+| Billing/Payment | Admins, Stakeholders |
+| Reports/Analytics | Admins, Power users |
+| Notifications | All users |
+| Search | All users |
 
 ## Severity Indicators
 
 Use these prefixes when appropriate:
 
-- **Critique** : Production-blocking issues
+- **Critical** : Production-blocking issues
 - **Important** : User-facing bugs
-- **Mineur** : Quality of life improvements
-- *Ne pas mentionner* : Internal fixes
+- **Minor** : Quality of life improvements
+- *Do not mention* : Internal fixes

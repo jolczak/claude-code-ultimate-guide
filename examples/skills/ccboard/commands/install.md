@@ -81,7 +81,7 @@ source $HOME/.cargo/env
 rustup update
 
 # Try manual installation from source
-git clone https://github.com/FlorianBruniaux/ccboard
+git clone https://github.com/{OWNER}/ccboard
 cd ccboard
 cargo install --path crates/ccboard
 ```

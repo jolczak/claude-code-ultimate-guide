@@ -172,8 +172,8 @@ cat ~/.claude/stats-cache.json  # Check stats file
 
 ## Links
 
-- **Repository**: https://github.com/FlorianBruniaux/ccboard
-- **Issues**: https://github.com/FlorianBruniaux/ccboard/issues
+- **Repository**: https://github.com/{OWNER}/ccboard
+- **Issues**: https://github.com/{OWNER}/ccboard/issues
 - **Claude Code**: https://claude.ai/code
 
 ## License

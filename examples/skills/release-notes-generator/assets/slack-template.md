@@ -3,83 +3,83 @@
 Use this template for generating product-focused Slack messages.
 
 ```
-Version X.Y.Z - Deployee en production
+Version X.Y.Z - Deployed to production
 
-PR : [URL de la PR de release, ex: https://github.com/methode-aristote/app/pull/XXX]
+PR : [Release PR URL, e.g.: https://github.com/{owner}/{repo}/pull/XXX]
 
-En bref : [Phrase decrivant l'objectif principal de cette release]
-
----
-
-Nouvelles fonctionnalites
-
-[Nom Feature 1]
-> [Description en 1-2 phrases de ce que ca apporte aux utilisateurs]
-> Qui est concerne : [Tuteurs / Eleves / Admin / Tous]
-
-[Nom Feature 2]
-> [Description en 1-2 phrases]
-> Qui est concerne : [Roles]
+In brief : [Sentence describing the main objective of this release]
 
 ---
 
-Corrections importantes
+New Features
 
-- [Description du bug corrige en langage utilisateur]
-- [Description du bug corrige en langage utilisateur]
+[Feature Name 1]
+> [1-2 sentence description of user impact]
+> Who is affected: [End-users / Admins / All]
+
+[Feature Name 2]
+> [1-2 sentence description]
+> Who is affected: [Roles]
 
 ---
 
-Ameliorations
+Important Fixes
 
-- [Amelioration UX/UI ou workflow en langage utilisateur]
+- [Bug fix described in user-friendly language]
+- [Bug fix described in user-friendly language]
+
+---
+
+Improvements
+
+- [UX/UI or workflow improvement in user language]
 - [...]
 
 ---
 
-En chiffres
+By the numbers
 
-- X nouvelles fonctionnalites
-- Y bugs corriges
-- Z ameliorations
+- X new features
+- Y bugs fixed
+- Z improvements
 
 ---
 
-Questions ? Contactez @florian ou l'equipe tech
+Questions? Contact @[team-lead] or the dev team
 ```
 
 ## Guidelines
 
-### A FAIRE
-- Utiliser un langage accessible (pas de jargon technique)
-- Focus sur l'impact utilisateur
-- Etre concis (max 10 lignes par section)
-- Utiliser des emojis avec parcimonie
+### DO
+- Use accessible language (no technical jargon)
+- Focus on user impact
+- Be concise (max 10 lines per section)
+- Use emojis sparingly
 
-### A EVITER
-- "Implementation du pattern DataLoader pour resoudre les N+1 queries"
-- "Refactorisation complete du systeme de permissions avec scope ANY/ASSIGNED"
-- "Migration de webpack vers Turbopack"
+### AVOID
+- "Implementation of the DataLoader pattern to solve N+1 queries"
+- "Complete refactoring of the permissions system with scope ANY/ASSIGNED"
+- "Migration from webpack to Turbopack"
 
-### Transformation Tech -> Produit
+### Tech -> Product Transformation
 
-| Technique | Produit |
+| Technical | Product |
 |-----------|---------|
-| Optimisation N+1 queries avec DataLoader | Chargement plus rapide des listes d'utilisateurs et de sessions |
-| Implementation embeddings AI avec pgvector | Nouvelle recherche intelligente d'activites similaires |
-| Correction scope permissions dans getPermissionScope() | Correction d'un bug qui empechait certains utilisateurs d'acceder a leurs sessions |
-| Migration vers kebab-case pour les fichiers | *Ne pas communiquer (purement technique)* |
-| Fix Prisma P1001 avec retry logic | Meilleure stabilite de connexion a la base de donnees |
-| Add Sentry monitoring for orphan chats | Detection automatique des conversations orphelines |
+| N+1 query optimization with DataLoader | Faster loading of user and feature lists |
+| AI embeddings implementation with pgvector | New intelligent search for similar items |
+| Fix scope permissions in getPermissionScope() | Fixed a bug preventing some users from accessing their data |
+| Migration to kebab-case for files | *Do not communicate (purely technical)* |
+| Fix DB connection with retry logic | Better database connection stability |
+| Add error monitoring for orphan records | Automatic detection of orphan records |
 
-### Sections Optionnelles
+### Optional Sections
 
-Si la release contient des elements importants, ajouter:
+If the release contains important items, add:
 
-Points d'attention
-- [Information importante que les utilisateurs doivent savoir]
-- [Changement de comportement qu'ils pourraient remarquer]
+Heads up
+- [Important information users should know]
+- [Behavior changes they might notice]
 
-A venir prochainement
-- [Teaser de la prochaine grosse feature]
-- [Feature en cours de developpement qui arrive bientot]
+Coming soon
+- [Teaser for the next big feature]
+- [Feature in development coming soon]

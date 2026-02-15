@@ -2,9 +2,8 @@
   "name": "ccboard",
   "version": "0.1.0",
   "description": "Comprehensive TUI/Web dashboard for Claude Code monitoring and management",
-  "author": "Florian Bruniaux",
-  "homepage": "https://github.com/FlorianBruniaux/ccboard",
-  "repository": "https://github.com/FlorianBruniaux/ccboard",
+  "homepage": "https://github.com/{OWNER}/ccboard",
+  "repository": "https://github.com/{OWNER}/ccboard",
   "license": "MIT OR Apache-2.0",
   "requires": {
     "binary": "ccboard",

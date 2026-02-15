@@ -205,11 +205,11 @@ Generate these sections in order:
 
 ## Example
 
-**User**: `/landing-page-generator from ~/Sites/perso/cc-copilot-bridge --risk-banner --pricing-table`
+**User**: `/landing-page-generator from ~/projects/my-project --risk-banner --pricing-table`
 
 **Output**:
 
-Creates `/Users/florianbruniaux/Sites/perso/cc-copilot-bridge-landing/` with:
+Creates `~/projects/my-project-landing/` with:
 - Complete landing page showcasing the multi-provider router
 - Prominent ToS risk banner (orange, above fold)
 - Provider cards (Anthropic, Copilot, Ollama)

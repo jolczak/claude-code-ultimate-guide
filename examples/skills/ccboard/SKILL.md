@@ -57,16 +57,16 @@ cargo install ccboard
 ### 8 Interactive Tabs
 
 #### 1. Dashboard (Press `1`)
-- Token usage statistics (17.32M total)
-- Session count (1.2K tracked)
-- Messages sent (327.7K)
-- Cache hit ratio (99.9%)
-- MCP server count (3 servers)
+- Token usage statistics
+- Session count
+- Messages sent
+- Cache hit ratio
+- MCP server count
 - 7-day activity sparkline
 - Top 5 models usage gauges
 
 #### 2. Sessions (Press `2`)
-- Dual-pane: Project tree (33 projects) + Session list (1.2K sessions)
+- Dual-pane: Project tree + Session list
 - Metadata: timestamps, duration, tokens, models
 - Search: Filter by project, message, or model (press `/`)
 - File operations: `e` to edit JSONL, `o` to reveal in finder
@@ -94,14 +94,14 @@ cargo install ccboard
 #### 6. Costs (Press `6`)
 - 3 views: Overview | By Model | Daily Trend
 - Token breakdown: input, output, cache read/write
-- Pricing: $9,145.20 total estimated
-- Model distribution: Opus 4.5 (76%), Sonnet 4.5 (14%)
+- Pricing: total estimated costs
+- Model distribution breakdown
 
 #### 7. History (Press `7`)
-- Full-text search across 2,311 sessions
+- Full-text search across all sessions
 - Activity by hour histogram (24h)
 - 7-day sparkline
-- 297.9K messages searchable
+- All messages searchable
 
 #### 8. MCP (Press `8`) **NEW**
 - Dual-pane: Server list (35%) | Details (65%)
@@ -204,7 +204,7 @@ The MCP tab provides comprehensive server monitoring:
 /sessions
 
 # Press '/' to search
-# Filter by project: /aristote
+# Filter by project: /my-project
 # Filter by model: /opus
 # Press 'e' on session to view full JSONL
 ```
@@ -368,7 +368,7 @@ Future roadmap:
 
 ccboard is open source (MIT OR Apache-2.0).
 
-Repository: https://github.com/FlorianBruniaux/ccboard
+Repository: https://github.com/{OWNER}/ccboard
 
 Contributions welcome:
 - Bug reports and feature requests
@@ -393,6 +393,6 @@ MIT OR Apache-2.0
 
 **Questions?**
 
-- GitHub Issues: https://github.com/FlorianBruniaux/ccboard/issues
-- Documentation: https://github.com/FlorianBruniaux/ccboard
+- GitHub Issues: https://github.com/{OWNER}/ccboard/issues
+- Documentation: https://github.com/{OWNER}/ccboard
 - Claude Code: https://claude.ai/code

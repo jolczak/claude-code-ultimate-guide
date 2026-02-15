@@ -1,11 +1,12 @@
 ---
 name: release-notes-generator
 description: Generate release notes in 3 formats (CHANGELOG.md, PR body, Slack announcement) from git commits. Automatically categorizes changes and converts technical language to user-friendly messaging. Use when preparing a production release.
+tags: [release-notes, changelog, slack, git, automation]
 ---
 
 # Release Notes Generator
 
-Generate comprehensive release notes in 3 formats from git commits, optimized for the Methode Aristote project workflow.
+Generate comprehensive release notes in 3 formats from git commits.
 
 ## When to Use This Skill
 
@@ -60,25 +61,25 @@ Technical format for developers:
 ```markdown
 ## [0.18.0] - 2025-12-08
 
-### Objectif
+### Objective
 [1-2 sentence summary]
 
-### Nouvelles Fonctionnalites
+### New Features
 #### [Feature Name] (#PR)
 - **Description**: ...
 - **Impact**: ...
 
-### Corrections de Bugs
-- **[Module]**: Description (#issue, Sentry ISSUE-XX)
+### Bug Fixes
+- **[Module]**: Description (#issue, [error-tracker] ISSUE-XX)
 
-### Ameliorations Techniques
+### Technical Improvements
 #### Performance / UI/UX / Architecture
 - [Description]
 
-### Migrations Base de Donnees
+### Database Migrations
 [If applicable]
 
-### Statistiques
+### Statistics
 - PRs: X
 - Features: Y
 - Bugs: Z
@@ -89,7 +90,7 @@ Technical format for developers:
 Uses template from `.github/PULL_REQUEST_TEMPLATE/release.md`:
 - Objective summary
 - Features with specs links
-- Bug fixes with Sentry references
+- Bug fixes with error tracker references
 - Improvements by category
 - Migration instructions
 - Deployment checklist
@@ -99,13 +100,13 @@ Uses template from `.github/PULL_REQUEST_TEMPLATE/release.md`:
 Product-focused format from `.github/COMMUNICATION_TEMPLATE/slack-release.md`:
 - **PR link** included for traceability
 - Non-technical language
-- Focus on user impact (tuteurs, eleves, admin)
+- Focus on user impact (end-users, admins, stakeholders)
 - Emojis for readability
 - Statistics summary
 
 ## Workflow Integration
 
-This skill integrates with the release workflow in CLAUDE.md Section VI.5:
+This skill integrates with the release workflow:
 
 ```
 1. Analyze commits: git log <last-tag>..HEAD
@@ -123,13 +124,13 @@ The skill automatically transforms technical language:
 
 | Technical | Product |
 |-----------|---------|
-| "Optimisation N+1 queries avec DataLoader" | "Chargement plus rapide des listes" |
-| "Implementation embeddings AI avec pgvector" | "Nouvelle recherche intelligente d'activites" |
-| "Correction scope permissions dans getPermissionScope()" | "Correction d'un bug d'acces aux sessions" |
-| "Migration webpack -> Turbopack" | *Ne pas communiquer* |
-| "Refactorisation hooks React" | *Ne pas communiquer* |
-| "Fix N+1 in user loaders" | "Amelioration des performances" |
-| "Add retry logic for Prisma P1001" | "Meilleure stabilite de connexion" |
+| "N+1 query optimization with DataLoader" | "Faster list loading" |
+| "AI embeddings implementation with pgvector" | "New intelligent search" |
+| "Fix scope permissions in getPermissionScope()" | "Fixed access permissions bug" |
+| "Migration webpack -> Turbopack" | *Do not communicate* |
+| "React hooks refactoring" | *Do not communicate* |
+| "Fix N+1 in user loaders" | "Performance improvement" |
+| "Add retry logic for DB connection errors" | "Better connection stability" |
 
 ## Commit Categories
 
@@ -137,10 +138,10 @@ Commits are categorized by conventional commit prefix:
 
 | Prefix | Category | Include in Slack? |
 |--------|----------|-------------------|
-| `feat:` | Nouvelles Fonctionnalites | Yes |
-| `fix:` | Corrections de Bugs | Yes (if user-facing) |
+| `feat:` | New Features | Yes |
+| `fix:` | Bug Fixes | Yes (if user-facing) |
 | `perf:` | Performance | Yes (simplified) |
-| `security:` | Securite | Yes |
+| `security:` | Security | Yes |
 | `refactor:` | Architecture | No |
 | `chore:` | Maintenance | No |
 | `docs:` | Documentation | No |
@@ -157,16 +158,16 @@ If migrations are detected, display prominently:
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  ⚠️  [ATTENTION] MIGRATIONS BASE DE DONNÉES REQUISES             ║
+║  ⚠️  [WARNING] DATABASE MIGRATIONS REQUIRED                      ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  Cette release contient X migration(s) Prisma :                  ║
+║  This release contains X migration(s):                           ║
 ║                                                                  ║
-║  • 20251210123456_add_activity_description                       ║
-║  • 20251211094532_update_session_status                          ║
+║  • 20251210123456_add_feature_description                        ║
+║  • 20251211094532_update_status_enum                             ║
 ║                                                                  ║
-║  Action requise AVANT déploiement :                              ║
-║  → Exécuter : pnpm prisma migrate deploy                         ║
+║  Action required BEFORE deployment:                              ║
+║  → Run: [migration-command]                                      ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
@@ -174,7 +175,7 @@ If migrations are detected, display prominently:
 If NO migrations:
 
 ```
-✅ [OK] Aucune migration base de données requise
+✅ [OK] No database migrations required
 ```
 
 ### Detection Method
@@ -183,7 +184,7 @@ Check for new migration files since last release:
 
 ```bash
 # Find new migrations since last tag
-git diff <last-tag>..HEAD --name-only -- prisma/migrations/
+git diff <last-tag>..HEAD --name-only -- migrations/
 ```
 
 ## Example
@@ -203,11 +204,11 @@ Found:
 - 3 improvements
 
 ╔══════════════════════════════════════════════════════════════════╗
-║  ⚠️  [ATTENTION] MIGRATIONS BASE DE DONNÉES REQUISES             ║
+║  ⚠️  [WARNING] DATABASE MIGRATIONS REQUIRED                      ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  Cette release contient 1 migration(s) Prisma :                  ║
+║  This release contains 1 migration(s):                           ║
 ║  • 20251208143021_add_user_preferences                           ║
-║  Action requise : pnpm prisma migrate deploy                     ║
+║  Action required: [migration-command]                             ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 --- CHANGELOG.md Section ---

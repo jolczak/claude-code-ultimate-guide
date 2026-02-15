@@ -5,38 +5,38 @@ This document defines how to categorize commits based on Conventional Commits fo
 ## Primary Categories
 
 ### Features (`feat:`)
-**CHANGELOG**: Nouvelles Fonctionnalites
+**CHANGELOG**: New Features
 **Slack**: Yes - always include
 **Examples**:
-- `feat(session): add parent report system`
-- `feat(activity): add multi-level topics`
-- `feat(search): add accent-insensitive search`
+- `feat(dashboard): add export report system`
+- `feat(search): add fuzzy matching`
+- `feat(api): add batch operations endpoint`
 
 ### Bug Fixes (`fix:`)
-**CHANGELOG**: Corrections de Bugs
+**CHANGELOG**: Bug Fixes
 **Slack**: Yes - if user-facing; No - if internal
 **Examples**:
-- `fix(session): correct status transition` -> Include in Slack
+- `fix(auth): correct token refresh flow` -> Include in Slack
 - `fix(test): correct mock setup` -> Do NOT include in Slack
 
 ### Performance (`perf:`)
-**CHANGELOG**: Ameliorations Techniques > Performance
-**Slack**: Yes - simplified ("Performances ameliorees")
+**CHANGELOG**: Technical Improvements > Performance
+**Slack**: Yes - simplified ("Performance improvement")
 **Examples**:
-- `perf(loader): optimize N+1 queries with batching`
+- `perf(api): optimize N+1 queries with batching`
 - `perf(build): reduce bundle size by 30%`
 
 ### Security (`security:` or `fix(security):`)
-**CHANGELOG**: Securite
+**CHANGELOG**: Security
 **Slack**: Yes - always, with appropriate detail level
 **Examples**:
-- `security: fix CVE-2025-55182 React2Shell RCE`
-- `fix(security): prevent XSS in chat messages`
+- `security: fix CVE-2025-55182 dependency RCE`
+- `fix(security): prevent XSS in user input`
 
 ## Secondary Categories (CHANGELOG only)
 
 ### Refactoring (`refactor:`)
-**CHANGELOG**: Ameliorations Techniques > Architecture
+**CHANGELOG**: Technical Improvements > Architecture
 **Slack**: No
 **Examples**:
 - `refactor(hooks): migrate to new pattern`
@@ -47,14 +47,14 @@ This document defines how to categorize commits based on Conventional Commits fo
 **Slack**: No
 **Examples**:
 - `docs: update CLAUDE.md with new patterns`
-- `docs(api): add tRPC endpoint documentation`
+- `docs(api): add endpoint documentation`
 
 ### Tests (`test:`)
 **CHANGELOG**: Tests (count only)
 **Slack**: No
 **Examples**:
-- `test(activity): add prompt resolver tests`
-- `test(e2e): add session workflow tests`
+- `test(api): add endpoint integration tests`
+- `test(e2e): add workflow tests`
 
 ### Chores (`chore:`)
 **CHANGELOG**: No (unless significant)
@@ -72,28 +72,26 @@ This document defines how to categorize commits based on Conventional Commits fo
 
 ## Scope Patterns
 
-Common scopes in Methode Aristote:
+Common scopes:
 
 | Scope | Area |
 |-------|------|
-| `session` | Session management |
-| `activity` | Activities and prompts |
-| `chat` | Chat and AI features |
-| `user` | User management |
 | `auth` | Authentication |
-| `visio` | Video conferencing |
-| `training` | Training/Formation system |
-| `admin` | Admin panel |
-| `calendar` | Calendar and scheduling |
-| `permissions` | Permission system |
-| `db` | Database and migrations |
+| `billing` | Billing and payments |
 | `api` | API endpoints |
 | `ui` | UI components |
+| `dashboard` | Dashboard features |
+| `notifications` | Notification system |
+| `search` | Search functionality |
+| `user` | User management |
+| `db` | Database and migrations |
+| `permissions` | Permission system |
+| `admin` | Admin panel |
 
 ## Breaking Changes
 
 Indicated by `!` after type/scope or `BREAKING CHANGE:` in footer:
-- `feat(api)!: change session status enum`
+- `feat(api)!: change status enum`
 - `fix(auth)!: require new token format`
 
 **CHANGELOG**: Breaking Changes section
@@ -106,11 +104,11 @@ Extract PR numbers from:
 2. Merge commit: `Merge pull request #123`
 3. GitHub API: cross-reference with commit SHA
 
-## Sentry Issue Linking
+## Error Tracker Issue Linking
 
 Match patterns:
-- `Sentry: METHODE-ARISTOTE-APP-XX`
-- `fixes METHODE-ARISTOTE-APP-XX`
+- `[error-tracker]: PROJECT-XX`
+- `fixes PROJECT-XX`
 - `closes #XX` (GitHub issue)
 
 ## Statistics Calculation

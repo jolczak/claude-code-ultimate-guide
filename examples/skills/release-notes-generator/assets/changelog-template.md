@@ -5,89 +5,89 @@ Use this template for generating CHANGELOG.md entries.
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
-### Objectif
-[Resume en 1-2 phrases de cette release]
+### Objective
+[1-2 sentence summary of this release]
 
-### Nouvelles Fonctionnalites
+### New Features
 
 #### [Feature Name] (#PR_NUMBER)
-- **Description** : [Description fonctionnelle claire]
-- **Spec Notion** : [Lien vers la spec si disponible]
-- **Composants impactes** : `component-a`, `service-b`, etc.
-- **Impact** : [Qui est concerne : Tuteurs / Eleves / Admin / Tous]
+- **Description** : [Clear functional description]
+- **Spec link** : [Link to spec if available]
+- **Impacted components** : `component-a`, `service-b`, etc.
+- **Impact** : [Who is affected: End-users / Admins / All]
 
-### Corrections de Bugs
+### Bug Fixes
 
-#### [Module/Composant] (#PR_NUMBER)
-- **Issue** : [Description du bug]
-- **Cause** : [Cause racine identifiee]
-- **Fix** : [Description de la correction]
-- **Sentry** : METHODE-ARISTOTE-APP-XX (si applicable)
+#### [Module/Component] (#PR_NUMBER)
+- **Issue** : [Bug description]
+- **Cause** : [Root cause identified]
+- **Fix** : [Fix description]
+- **[Error tracker]** : PROJECT-XX (if applicable)
 
-### Ameliorations Techniques
+### Technical Improvements
 
 #### Performance
-- [Description optimisation avec impact mesurable si possible]
+- [Optimization description with measurable impact if possible]
 
 #### UI/UX
-- [Description amelioration interface]
+- [Interface improvement description]
 
 #### Architecture
-- [Description refactoring important]
+- [Significant refactoring description]
 
-### Securite
-- **[CVE-XXXX-XXXXX]** : [Description et impact]
+### Security
+- **[CVE-XXXX-XXXXX]** : [Description and impact]
 
-### Migrations Base de Donnees
+### Database Migrations
 
-#### Processus de Deploiement
+#### Deployment Process
 
-**Etape 1 : Appliquer les migrations Prisma**
+**Step 1: Apply migrations**
 ```bash
-pnpm prisma migrate deploy
+[migration-command]
 ```
 
-**Etape 2 : Scripts de data migration** (si applicable)
+**Step 2: Data migration scripts** (if applicable)
 ```bash
-pnpm dotenv -e .env.production -- tsx scripts/db/migrations/[script-name].ts
+[data-migration-command]
 ```
 
-**Verification post-migration**
+**Post-migration verification**
 ```sql
--- Requetes de verification
+-- Verification queries
 SELECT COUNT(*) FROM [table];
 ```
 
 ### Breaking Changes
 
-**Aucun** ou:
+**None** or:
 
-- **[Composant/API]** : Description du breaking change
-  - **Migration requise** : Comment migrer
-  - **Impact** : Qui est affecte
+- **[Component/API]** : Breaking change description
+  - **Migration required** : How to migrate
+  - **Impact** : Who is affected
 
 ### Deprecations
 
-**Aucune** ou:
+**None** or:
 
-- **[Fonctionnalite X]** : Depreciee dans cette version
-  - **Raison** : Pourquoi
-  - **Alternative** : Quoi utiliser a la place
-  - **Suppression prevue** : Version X.Y.Z
+- **[Feature X]** : Deprecated in this version
+  - **Reason** : Why
+  - **Alternative** : What to use instead
+  - **Planned removal** : Version X.Y.Z
 
 ### Tests
-- [X] tests unitaires pour [feature]
-- [X] tests d'integration pour [module]
+- [X] unit tests for [feature]
+- [X] integration tests for [module]
 
-### Statistiques
+### Statistics
 - **PRs** : #XX, #YY, #ZZ
-- **Fichiers impactes** : XX+
-- **Nouvelles tables** : [liste si applicable]
-- **Migrations Prisma** : X migrations
+- **Files impacted** : XX+
+- **New tables** : [list if applicable]
+- **Migrations** : X migrations
 - **Breaking changes** : 0
 
-### Liens
-- PR: https://github.com/methode-aristote/app/pull/XXX
-- PRs incluses : #XX, #YY, #ZZ
-- Issues Sentry : METHODE-ARISTOTE-APP-XX
+### Links
+- PR: https://github.com/{owner}/{repo}/pull/XXX
+- Included PRs : #XX, #YY, #ZZ
+- [Error tracker] issues : PROJECT-XX
 ```

@@ -26,7 +26,7 @@ Guide v3.20.5 - La reference visuelle s'enrichit.
 - Defense securite 3 couches : prevention, detection, reponse avec parcours d'adoption par taille d'equipe
 - Timeline d'exposition de secrets : actions d'urgence par fenetre (15min/1h/24h)
 
-Guide complet disponible en open source : https://florianbruniaux.github.io/claude-code-ultimate-guide-landing/
+Guide complet disponible en open source : https://{DOMAIN}/
 
 #ClaudeCode #CodingWithAI #DeveloperTools
 ```
@@ -43,7 +43,7 @@ Guide v3.20.5 - Visual reference update.
 - Security 3-Layer Defense: prevention, detection, response with adoption path by team size
 - Secret Exposure Timeline: emergency actions by time window (15min/1h/24h)
 
-Full guide available open source: https://florianbruniaux.github.io/claude-code-ultimate-guide-landing/
+Full guide available open source: https://{DOMAIN}/
 
 #ClaudeCode #CodingWithAI #DeveloperTools
 ```
@@ -55,7 +55,7 @@ Full guide available open source: https://florianbruniaux.github.io/claude-code-
 
 TDD, UVAL, securite 3 couches, timeline incidents - reference visuelle v3.20.5
 
-https://github.com/FlorianBruniaux/claude-code-ultimate-guide
+https://github.com/{OWNER}/{REPO}
 ```
 
 ### Twitter/X (EN)
@@ -65,7 +65,7 @@ https://github.com/FlorianBruniaux/claude-code-ultimate-guide
 
 TDD, UVAL, 3-layer security, incident timeline - visual reference v3.20.5
 
-https://github.com/FlorianBruniaux/claude-code-ultimate-guide
+https://github.com/{OWNER}/{REPO}
 ```
 
 ### Newsletter (FR)
@@ -92,7 +92,7 @@ Si vous apprenez mieux en visuel, les 20 diagrammes du guide couvrent maintenant
 
 ---
 
-[Guide complet](https://florianbruniaux.github.io/claude-code-ultimate-guide-landing/) | [GitHub](https://github.com/FlorianBruniaux/claude-code-ultimate-guide)
+[Guide complet](https://{DOMAIN}/) | [GitHub](https://github.com/{OWNER}/{REPO})
 ```
 
 ### Newsletter (EN)
@@ -119,7 +119,7 @@ If you're a visual learner, the guide's 20 diagrams now cover the most common wo
 
 ---
 
-[Full guide](https://florianbruniaux.github.io/claude-code-ultimate-guide-landing/) | [GitHub](https://github.com/FlorianBruniaux/claude-code-ultimate-guide)
+[Full guide](https://{DOMAIN}/) | [GitHub](https://github.com/{OWNER}/{REPO})
 ```
 
 ### Slack (FR)
@@ -130,7 +130,7 @@ If you're a visual learner, the guide's 20 diagrams now cover the most common wo
 :art: 4 nouveaux diagrammes ASCII (TDD, UVAL, securite, incidents)
 :arrow_right: 16 -> 20 diagrammes au total
 
-:link: https://github.com/FlorianBruniaux/claude-code-ultimate-guide
+:link: https://github.com/{OWNER}/{REPO}
 ```
 
 ### Slack (EN)
@@ -141,5 +141,5 @@ If you're a visual learner, the guide's 20 diagrams now cover the most common wo
 :art: 4 new ASCII diagrams (TDD, UVAL, security, incidents)
 :arrow_right: 16 -> 20 diagrams total
 
-:link: https://github.com/FlorianBruniaux/claude-code-ultimate-guide
+:link: https://github.com/{OWNER}/{REPO}
 ```

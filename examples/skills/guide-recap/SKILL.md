@@ -2,6 +2,7 @@
 name: guide-recap
 description: Transform CHANGELOG entries into social content (LinkedIn, Twitter/X, Newsletter, Slack) in FR + EN. Use after releases or weekly to generate ready-to-post content from guide updates.
 argument-hint: "<latest|vX.Y.Z|week [YYYY-MM-DD]> [--interactive] [--format=linkedin|twitter|newsletter|slack] [--lang=fr|en] [--save]"
+tags: [changelog, social-media, content, linkedin, twitter]
 ---
 
 # Guide Recap
@@ -30,7 +31,7 @@ Generate social media content from CHANGELOG.md entries. Produces 8 outputs by d
 | `--interactive` | Guide mode: choose angle, audience, highlight | Off (auto-draft) |
 | `--format=X` | Single format: `linkedin`, `twitter`, `newsletter`, `slack` | All 4 formats |
 | `--lang=X` | Single language: `fr`, `en` | Both FR + EN |
-| `--save` | Save output to `claudedocs/social-posts/` | Display only |
+| `--save` | Save output to `[project-docs]/social-posts/` | Display only |
 | `--force` | Generate even if only maintenance entries | Skip low-score |
 
 ## Workflow (7 Steps)
@@ -154,8 +155,8 @@ For each requested format (default: all 4) and language (default: both):
 | Slack | GitHub repo URL |
 
 **URLs:**
-- Landing: `https://florianbruniaux.github.io/claude-code-ultimate-guide-landing/`
-- GitHub: `https://github.com/FlorianBruniaux/claude-code-ultimate-guide`
+- Landing: `https://{DOMAIN}/`
+- GitHub: `https://github.com/{OWNER}/{REPO}`
 
 ### Step 7: Output
 
@@ -183,7 +184,7 @@ Display each generated post in a fenced code block, labeled by format and langua
 ...
 ```
 
-If `--save` flag: write all outputs to `claudedocs/social-posts/YYYY-MM-DD-vX.Y.Z.md` (for version) or `claudedocs/social-posts/YYYY-MM-DD-week.md` (for week). Create `claudedocs/social-posts/` directory if it doesn't exist.
+If `--save` flag: write all outputs to `[project-docs]/social-posts/YYYY-MM-DD-vX.Y.Z.md` (for version) or `[project-docs]/social-posts/YYYY-MM-DD-week.md` (for week). Create `[project-docs]/social-posts/` directory if it doesn't exist.
 
 ## Error Handling
 
@@ -213,5 +214,5 @@ If `--save` flag: write all outputs to `claudedocs/social-posts/YYYY-MM-DD-vX.Y.
 - Run `/guide-recap latest` right after `/release` to prepare social posts
 - Use `--interactive` the first few times to understand the scoring
 - Use `--format=linkedin --lang=fr` when you only need one specific output
-- `--save` outputs are gitignored via `claudedocs/` convention
+- `--save` outputs are gitignored via `[project-docs]/` convention
 - Review and personalize before posting (these are drafts, not final copy)
