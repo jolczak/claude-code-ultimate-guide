@@ -1,3 +1,9 @@
+---
+title: "RTK Token Optimization Template"
+description: "CLAUDE.md configuration for minimizing token consumption with RTK CLI proxy"
+tags: [claude-md, template, performance]
+---
+
 # RTK Token Optimization
 
 **Context**: Using RTK (Rust Token Killer) to minimize token consumption from command outputs.
