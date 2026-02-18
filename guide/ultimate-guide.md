@@ -1753,21 +1753,21 @@ Claude Code uses **Claude Sonnet 4.6** by default (as of Feb 2026):
 
 #### 200K vs 1M Context: Performance, Cost & Use Cases
 
-The 1M context window (beta, API + usage tier 4 required) is a significant capability jump — but it's not always the right choice.
+The 1M context window (beta, API + usage tier 4 required) is a significant capability jump — but community feedback consistently frames it as a **niche premium tool**, not a default.
 
 **Retrieval accuracy at scale (MRCR v2 8-needle 1M variant)**
 
 | Model | 256K accuracy | 1M accuracy | Source |
 |-------|--------------|-------------|--------|
-| Opus 4.6 | 93% | 76% | Anthropic blog + independent analysis (Feb 2026) |
+| Opus 4.6 | 93% | 76% | Anthropic blog + [independent analysis](https://www.youtube.com/watch?v=JKk77rzOL34) (Feb 2026) |
 | Sonnet 4.5 | — | 18.5% | Anthropic blog (Feb 2026) |
 | Sonnet 4.6 | Not yet published | Not yet published | — |
 
-Note: Opus 4.6 retains strong accuracy at 1M (76%), Sonnet 4.5 degrades sharply. The benchmark is the "8-needle 1M variant" — finding 8 specific facts in a 1M-token document. The 93% figure at 256K comes from independent analysis of Anthropic's published data. Community validation: a developer loaded ~733K tokens (4 Harry Potter books) and Opus 4.6 retrieved 49/50 documented spells in a single prompt ([HN, Feb 2026](https://news.ycombinator.com/item?id=46905735)). Sonnet 4.6 MRCR scores not yet published.
+The benchmark is the "8-needle 1M variant" — finding 8 specific facts in a 1M-token document. Opus 4.6 drops from 93% to 76% when scaling from 256K to 1M; Sonnet 4.5 collapses to 18.5%. **Community validation**: a developer loaded ~733K tokens (4 Harry Potter books) and Opus 4.6 retrieved 49/50 documented spells in a single prompt ([HN, Feb 2026](https://news.ycombinator.com/item?id=46905735)). Sonnet 4.6 MRCR not yet published, but community reports suggest it "struggles with following specific instructions and retrieving precise information" at full 1M context.
 
 **Cost per session (approximate)**
 
-Important: above 200K input tokens, **all** tokens in the request are charged at premium rates (not just the excess). Applies to both Sonnet 4.6 and Opus 4.6.
+Above 200K input tokens, **all tokens** in the request are charged at premium rates — not just the excess. Applies to both Sonnet 4.6 and Opus 4.6.
 
 | Session type | ~Tokens in | ~Tokens out | Sonnet 4.6 | Opus 4.6 |
 |---|---|---|---|---|
@@ -1775,13 +1775,17 @@ Important: above 200K input tokens, **all** tokens in the request are charged at
 | Module refactoring (≤200K) | 150K | 20K | ~$0.75 | ~$1.25 |
 | Full service analysis (>200K, 1M beta) | 500K | 50K | ~$4.13 | ~$6.88 |
 
+For comparison: Gemini 1.5 Pro offers a 2M context window at $3.50/$10.50/MTok — significantly cheaper for pure long-context RAG. Community advice: use Gemini for large-document RAG, Claude for reasoning quality and agentic workflows.
+
 **When to use which**
 
 | Scenario | Recommendation |
 |----------|---------------|
 | Bug fix, PR review, daily coding | Sonnet 4.6 @ 200K — fast and cheap |
-| Cross-module refactoring, large codebase | Sonnet 4.6 @ 1M — but premium pricing kicks in above 200K |
-| Architecture analysis, Agent Teams, complex reasoning | Opus 4.6 @ 1M — stronger retrieval accuracy |
+| Full-repo audit, entire codebase load | Opus 4.6 @ 1M — worth the cost for precision |
+| Cross-module refactoring | Sonnet 4.6 @ 1M — but weigh cost vs. chunking + RAG |
+| Architecture analysis, Agent Teams | Opus 4.6 @ 1M — strongest retrieval at scale |
+| Large-document RAG (PDFs, legal, books) | Consider Gemini 1.5 Pro — cheaper at this scale |
 
 **Key facts**
 - Opus 4.6 max output: **128K tokens**; Sonnet 4.6 max output: **64K tokens**
@@ -1789,6 +1793,8 @@ Important: above 200K input tokens, **all** tokens in the request are charged at
 - 1M context is **beta** — requires `anthropic-beta: context-1m-2025-08-07` header, usage tier 4 or custom rate limits
 - Above 200K input tokens: Sonnet 4.6 doubles to $6/$22.50/MTok; Opus 4.6 doubles to $10/$37.50/MTok
 - If input stays ≤200K, standard pricing applies even with the beta flag enabled
+- **Practical workaround**: check context at ~70% and open a new session rather than hitting compaction ([HN pattern](https://news.ycombinator.com/item?id=46902427))
+- Community consensus: 200K + RAG is the default; 1M Opus is reserved for cases where loading everything at once is genuinely necessary
 
 #### What Costs the Most?
 
