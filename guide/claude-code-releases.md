@@ -10,13 +10,13 @@ tags: [reference, release]
 > **Full details**: [github.com/anthropics/claude-code/CHANGELOG.md](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
 > **Machine-readable**: [claude-code-releases.yaml](../machine-readable/claude-code-releases.yaml)
 
-**Latest**: v2.1.45 | **Updated**: 2026-02-17
+**Latest**: v2.1.47 | **Updated**: 2026-02-19
 
 ---
 
 ## Quick Jump
 
-- [2.1.x Series (January-February 2026)](#21x-series-january-february-2026) — Fast mode Opus 4.6, PDF pages support, /debug command, Task management
+- [2.1.x Series (January-February 2026)](#21x-series-january-february-2026) — Fast mode Opus 4.6, PDF pages support, /debug command, Task management, claude.ai MCP connectors
 - [2.0.x Series (Nov 2025 - Jan 2026)](#20x-series-november-2025---january-2026) — Opus 4.5, Claude in Chrome, Background agents
 - [Breaking Changes Summary](#breaking-changes-summary)
 - [Milestone Features](#milestone-features)
@@ -24,6 +24,28 @@ tags: [reference, release]
 ---
 
 ## 2.1.x Series (January-February 2026)
+
+### v2.1.47 (2026-02-19)
+
+- **Improved**: VS Code plan preview auto-updates as Claude iterates; commenting enabled only when plan is ready for review; preview stays open when rejected for revision
+- **New**: `ctrl+f` kills all background agents simultaneously (replaces double-ESC); ESC now cancels main thread only, background agents keep running
+- **New**: `last_assistant_message` field added to Stop and SubagentStop hook inputs (access final response without parsing transcript files)
+- **New**: `chat:newline` keybinding action; `added_dirs` in statusline JSON workspace section
+- **Fixed**: Compaction failing when conversation contains many PDF documents (strips document blocks alongside images)
+- **Fixed**: Edit tool corrupting Unicode curly quotes (`"` `"` `'` `'`) by replacing with straight quotes
+- **Fixed**: Parallel file write/edit — single file failure no longer aborts sibling operations
+- **Fixed**: OSC 8 hyperlinks only clickable on first line when link text wraps across multiple terminal lines
+- **Fixed**: Bash permission classifier now validates match descriptions against actual input rules (prevents hallucinated permissions)
+- **Fixed**: Config backups timestamped and rotated (5 most recent kept) instead of overwriting
+- **Fixed**: Session name lost after context compaction; plan mode lost after compaction
+- **Fixed**: Hooks (PreToolUse, PostToolUse) silently failing on Windows (now uses Git Bash)
+- **Fixed**: Custom agents/skills not discovered in git worktrees (main repo `.claude/` now included)
+- **Fixed**: 70+ additional rendering, session, permission, and platform fixes
+
+### v2.1.46 (2026-02-19)
+
+- **Fixed**: Orphaned Claude Code processes after terminal disconnect on macOS
+- **New**: Support for using claude.ai MCP connectors in Claude Code
 
 ### v2.1.45 (2026-02-17)
 

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Documentation
+
+- **Claude Code Releases**: Updated tracking to v2.1.47 (from v2.1.45)
+  - v2.1.47: VS Code plan preview auto-updates, `ctrl+f` kills all background agents, `last_assistant_message` hook field, 70+ bug fixes
+  - v2.1.46: claude.ai MCP connectors support, orphaned process fix on macOS
+
 ## [3.27.6] - 2026-02-18
 
 ### Added
