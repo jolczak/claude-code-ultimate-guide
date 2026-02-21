@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **guide/observability.md — 3 nouvelles sections monitoring** (+214 lignes)
+  - **Activity Monitoring** : audit des actions Claude Code via les JSONL de session — quels fichiers lus, commandes exécutées, URLs fetchées. Requêtes `jq` prêtes à l'emploi. Tableau des patterns sensibles (.env, rm -rf, WebFetch externe)
+  - **External Monitoring Tools** : tableau comparatif ccusage / claude-code-otel / Akto / MLflow / ccboard avec decision guide et exemples d'install
+  - **Proxying Claude Code** : pourquoi Proxyman/Charles échouent (Node.js ignore les proxies système), 4 solutions : `NODE_EXTRA_CA_CERTS`, `ANTHROPIC_API_URL`, mitmproxy (recommandé), proxy Python minimal
+- **docs/resource-evaluations/ccboard-activity-module-plan.md** : plan complet pour le module Activity de ccboard (Tab 10)
+  - Data models Rust (`ToolCall`, `FileAccess`, `BashCommand`, `NetworkCall`, `Alert`)
+  - Parser JSONL stream avec détection destructive/sensible
+  - Schéma SQLite + stratégie de cache lazy (invalidation par mtime)
+  - Layout TUI avec 5 sous-tabs (Files/Commands/Network/Alerts/Timeline)
+  - Endpoints Web API (`GET /api/activity/:session_id/...`)
+  - 7 règles d'alertes avec sévérités
+  - 5 phases d'implémentation avec checklists
+- **machine-readable/reference.yaml** : 6 nouvelles entrées (`activity_monitoring`, `external_monitoring_tools`, `proxying_claude_code`, `ccboard_activity_plan`...)
+
 ## [3.28.0] - 2026-02-21
 
 ### Added

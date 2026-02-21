@@ -15,8 +15,11 @@ tags: [observability, guide, performance]
 3. [Setting Up Session Logging](#setting-up-session-logging)
 4. [Analyzing Session Data](#analyzing-session-data)
 5. [Cost Tracking](#cost-tracking)
-6. [Patterns & Best Practices](#patterns--best-practices)
-7. [Limitations](#limitations)
+6. [Activity Monitoring](#activity-monitoring)
+7. [External Monitoring Tools](#external-monitoring-tools)
+8. [Proxying Claude Code](#proxying-claude-code)
+9. [Patterns & Best Practices](#patterns--best-practices)
+10. [Limitations](#limitations)
 
 ---
 
@@ -458,6 +461,217 @@ claude_budget_check() {
 # Run on shell start
 claude_budget_check
 ```
+
+---
+
+## Activity Monitoring
+
+Cost tracking tells you *how much* you spend. Activity monitoring tells you *what Claude Code actually did*: which files it read, which commands it ran, which URLs it fetched. This is the audit layer.
+
+### Session JSONL: The Ground Truth
+
+Every tool call Claude Code makes is recorded in the session JSONL files at `~/.claude/projects/<project>/`. Each entry with `type: "assistant"` contains a `content` array where `type: "tool_use"` blocks document every action.
+
+```bash
+# Find your session files
+ls ~/.claude/projects/-$(pwd | tr '/' '-')-/
+
+# Inspect tool calls in a session
+cat ~/.claude/projects/-your-project-/SESSION_ID.jsonl | \
+  jq 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use") | {tool: .name, input: .input}'
+```
+
+### What Tool Calls Reveal
+
+| Tool | What It Exposes |
+|------|----------------|
+| `Read` | Files accessed (path, line range) |
+| `Write` / `Edit` | Files modified (path, content delta) |
+| `Bash` | Commands executed (full command string) |
+| `WebFetch` | URLs fetched (may include data sent in POST) |
+| `Task` | Subagent spawns (prompt passed to sub-model) |
+| `Glob` / `Grep` | Search patterns and scope |
+
+### Practical Audit Queries
+
+```bash
+# All files read in a session
+SESSION=~/.claude/projects/-your-project-/SESSION_ID.jsonl
+jq 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Read") | .input.file_path' "$SESSION"
+
+# All bash commands executed
+jq 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Bash") | .input.command' "$SESSION"
+
+# All URLs fetched
+jq 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "WebFetch") | .input.url' "$SESSION"
+
+# Count tool usage by type
+jq -r 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use") | .name' "$SESSION" | sort | uniq -c | sort -rn
+```
+
+### Sensitive Patterns to Watch
+
+These tool call patterns are worth flagging in automated audits:
+
+| Pattern | Risk | Detection |
+|---------|------|-----------|
+| `Read` on `.env`, `*.pem`, `id_rsa` | Credential access | `jq '... | select(.input.file_path | test("\\.(env|pem|key)$"))'` |
+| `Bash` with `rm -rf`, `git push --force` | Destructive action | `jq '... | select(.input.command | test("rm -rf\|force-push"))'` |
+| `WebFetch` on external URLs | Data exfiltration risk | `jq '... | select(.name == "WebFetch") | .input.url'` |
+| `Write` on files outside project root | Scope creep | Check paths against working directory |
+
+> **Security context**: Claude Code operates read-write on your filesystem with your user permissions. The JSONL audit trail is your record of what happened. For teams, consider syncing these logs to immutable storage.
+
+---
+
+## External Monitoring Tools
+
+Beyond the hook-based approach above, the community has built purpose-specific tools. This is a factual snapshot as of early 2026.
+
+| Tool | Type | What It Does | Install |
+|------|------|-------------|---------|
+| **ccusage** | CLI / TUI | Cost tracking from JSONL — the de-facto reference for pricing data. ~10K GitHub stars. | `npm i -g ccusage` |
+| **claude-code-otel** | OpenTelemetry exporter | Emits spans to any OTEL collector. Integrates with Prometheus + Grafana dashboards. Enterprise-focused. | `npm i -g claude-code-otel` |
+| **Akto** | SaaS / self-hosted | API security guardrails + audit trail. Intercepts at the API level, flags policy violations. | [akto.io](https://akto.io) |
+| **MLflow Tracing** | SDK integration | Structured traces (tool usage, latency, inputs/outputs). Requires wrapping calls in Python. | `pip install mlflow` |
+| **ccboard** | TUI + Web | Unified dashboard for sessions, costs, stats. Activity/audit tab in development. | `cargo install ccboard` |
+
+### Decision Guide
+
+```
+Want cost numbers fast?          → ccusage (CLI, 0 config)
+Need enterprise audit trail?     → claude-code-otel + Grafana or Akto
+Already using MLflow for ML?     → MLflow tracing integration
+Want a persistent TUI/Web UI?    → ccboard
+```
+
+### ccusage
+
+```bash
+npm i -g ccusage
+ccusage          # Today's usage
+ccusage --days 7 # Last 7 days
+```
+
+Reads directly from `~/.claude/projects/**/*.jsonl`. No API keys, no data sent externally. Source: [github.com/ryoppippi/ccusage](https://github.com/ryoppippi/ccusage).
+
+### claude-code-otel
+
+Exports Claude Code activity as OpenTelemetry spans:
+
+```bash
+npm i -g claude-code-otel
+claude-code-otel --collector http://localhost:4318
+```
+
+Spans include tool name, duration, token counts. Plug into any OTEL-compatible backend (Jaeger, Tempo, Datadog). Source: [github.com/badger-99/claude-code-otel](https://github.com/badger-99/claude-code-otel).
+
+### ccboard
+
+```bash
+cargo install ccboard
+ccboard              # Launch TUI
+ccboard --web        # Launch Web UI (localhost:3000)
+```
+
+Source: [github.com/FlorianBruniaux/ccboard](https://github.com/FlorianBruniaux/ccboard). An Activity tab covering file access, bash commands, and network calls is planned (see `docs/resource-evaluations/ccboard-activity-module-plan.md`).
+
+---
+
+## Proxying Claude Code
+
+A common question: "Can I run Proxyman/Charles to see what Claude Code sends to Anthropic?"
+
+**Short answer**: Not directly. Here's why, and what works instead.
+
+### Why System Proxies Don't Work
+
+Claude Code is a Node.js process. By default, Node.js ignores system-level proxy settings (`HTTP_PROXY`, `HTTPS_PROXY`) — it uses its own TLS stack and doesn't read macOS/Windows proxy configurations.
+
+Additionally, even if traffic flows through your proxy, the TLS certificate mismatch causes Claude Code to fail (`CERT_UNTRUSTED`).
+
+### Option 1: Trust a MITM Certificate (Proxyman / Charles)
+
+Force Node.js to trust your proxy's CA certificate:
+
+```bash
+# Export Proxyman's CA cert (File → Export → Root Certificate)
+# Then point Node.js at it:
+export NODE_EXTRA_CA_CERTS="/path/to/proxyman-ca.pem"
+
+# Start Claude Code — traffic will now route through Proxyman
+claude
+```
+
+Same approach works for Charles: `Help → SSL Proxying → Export Charles Root Certificate`.
+
+**Caveats**:
+- Some Claude Code versions use certificate pinning for `api.anthropic.com` — this may still fail
+- This approach requires a running Proxyman/Charles instance listening on the configured port
+
+### Option 2: Redirect API Traffic with ANTHROPIC_API_URL
+
+Point Claude Code at a local interceptor instead of `api.anthropic.com`:
+
+```bash
+export ANTHROPIC_API_URL="http://localhost:8080"
+claude
+```
+
+Run any HTTP proxy/logger on port 8080 that forwards to `https://api.anthropic.com`. This bypasses TLS entirely for the Claude Code → proxy hop.
+
+**Use cases**: Logging request payloads, injecting headers, rate-limiting locally, replaying requests.
+
+### Option 3: mitmproxy (Recommended)
+
+[mitmproxy](https://mitmproxy.org) is the cleanest open-source solution. It provides a scriptable HTTPS proxy with a web UI and terminal interface.
+
+```bash
+# Install
+brew install mitmproxy  # macOS
+# or: pip install mitmproxy
+
+# Start transparent proxy on port 8080
+mitmproxy --listen-port 8080
+
+# In a new terminal, point Claude Code at it
+export NODE_EXTRA_CA_CERTS="$(python3 -c 'import mitmproxy.certs; print(mitmproxy.certs.Cert.default_ca_path())')"
+export HTTPS_PROXY="http://localhost:8080"
+claude
+```
+
+The mitmproxy web UI (`mitmweb`) at `http://localhost:8081` shows full request/response bodies — including the JSON payloads Claude Code sends to Anthropic.
+
+**What you'll see**: System prompt, user messages, tool definitions, tool results, model parameters.
+
+### Option 4: Minimal Python Logging Proxy
+
+For a zero-dependency approach:
+
+```python
+# proxy.py — simple HTTPS logging proxy
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import urllib.request, json, sys
+
+TARGET = "https://api.anthropic.com"
+
+class LoggingProxy(BaseHTTPRequestHandler):
+    def do_POST(self):
+        length = int(self.headers["Content-Length"])
+        body = self.rfile.read(length)
+        print(json.dumps(json.loads(body), indent=2))  # Log request
+        # Forward to Anthropic...
+
+HTTPServer(("localhost", 8080), LoggingProxy).serve_forever()
+```
+
+```bash
+python3 proxy.py &
+export ANTHROPIC_API_URL="http://localhost:8080"
+claude
+```
+
+> **Privacy note**: Proxied traffic includes everything in the conversation context — file contents Claude has read, your code, any secrets it encountered. Handle proxy logs accordingly.
 
 ---
 
