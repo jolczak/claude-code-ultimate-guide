@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [3.28.1] - 2026-02-22 (security patch)
+
+### Security
+
+- **Threat Database v2.1.0 → v2.2.0** — 2 new CVEs, 5 new scanning tools, 1 new attack technique
+  - **CVE-2026-0755** (Critical, CVSS 9.8) — gemini-mcp-tool RCE via command injection; LLM-generated args passed to shell without validation; no auth, network-reachable; **no fix as of 2026-02-22**
+  - **SNYK-PYTHON-MCPRUNPYTHON-15250607** (High) — mcp-run-python SSRF via overly permissive Deno sandbox allowing localhost access
+  - **T010 Attack Technique** — Agent-to-Agent Communication Injection: attacker injects malicious instructions into Slack/GitHub/ticketing channels monitored autonomously by AI agents
+  - **5 new scanning tools catalogued**: Proximity (open-source), Enkrypt AI MCP Scanner, Cisco MCP Scanner (behavioral analysis), NeuralTrust MCP Scanner, MCPScan.ai
+  - **Defensive resource**: Anthropic Claude Code Security (AI-powered codebase scanner, launched 2026-02-21)
+  - **4 new sources**: Lakera "Agent Skill Ecosystem" audit (4310 OpenClaw skills), Penligent AI CVE-2026-0755, Snyk mcp-run-python SSRF, THN Anthropic CC Security
+- **guide/security-hardening.md** — CVE table updated with CVE-2026-0755 and mcp-run-python SSRF entries + critical warning note (no patch available)
+
 ## [3.28.1] - 2026-02-22
 
 ### Added

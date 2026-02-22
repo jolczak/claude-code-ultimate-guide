@@ -9,7 +9,7 @@
   <a href="./CHANGELOG.md"><img src="https://img.shields.io/badge/Updated-Feb_22,_2026_·_v3.28.1-brightgreen?style=for-the-badge" alt="Last Update"/></a>
   <a href="./quiz/"><img src="https://img.shields.io/badge/Quiz-271_questions-orange?style=for-the-badge" alt="Quiz"/></a>
   <a href="./examples/"><img src="https://img.shields.io/badge/Templates-175-green?style=for-the-badge" alt="Templates"/></a>
-  <a href="./guide/security-hardening.md"><img src="https://img.shields.io/badge/🛡️_Threat_DB-19_CVEs_·_655_malicious_skills-red?style=for-the-badge" alt="Threat Database"/></a>
+  <a href="./guide/security-hardening.md"><img src="https://img.shields.io/badge/🛡️_Threat_DB-24_CVEs_·_655_malicious_skills-red?style=for-the-badge" alt="Threat Database"/></a>
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 - ✅ **Build mental models** — How Claude Code works internally (architecture, context flow, tool orchestration)
 - ✅ **Visualize concepts** — 40 Mermaid diagrams covering model selection, master loop, memory hierarchy, multi-agent patterns, security threats
 - ✅ **Master methodologies** — TDD, SDD, BDD with AI collaboration (not just templates)
-- ✅ **Security mindset** — Threat modeling for AI systems (only guide with 18 CVEs + 341 malicious skills database)
+- ✅ **Security mindset** — Threat modeling for AI systems (only guide with 24 CVEs + 655 malicious skills database)
 - ✅ **Test your knowledge** — 271-question quiz to validate understanding (no other resource offers this)
 
 **Outcome**: Go from copy-pasting configs to designing your own agentic workflows with confidence.
@@ -48,7 +48,7 @@ Both guides serve different needs. Choose based on your priority.
 | **Understand why** patterns work | Deep explanations + architecture | Config-focused |
 | **Quick setup** for projects | Available but not the priority | Battle-tested production configs |
 | **Learn trade-offs** (agents vs skills) | Decision frameworks + comparisons | Lists patterns, no trade-off analysis |
-| **Security hardening** | Only threat database (18 CVEs) | Basic patterns only |
+| **Security hardening** | Only threat database (24 CVEs) | Basic patterns only |
 | **Test understanding** | 271-question quiz | Not available |
 | **Methodologies** (TDD/SDD/BDD) | Full workflow guides | Not covered |
 | **Copy-paste ready** templates | 175 templates | 200+ templates |
@@ -75,7 +75,7 @@ Both guides serve different needs. Choose based on your priority.
 ```
 
 **4 unique gaps no competitor covers:**
-1. **Security-First** — 18 CVEs + 341 malicious skills tracked (no competitor has this depth)
+1. **Security-First** — 24 CVEs + 655 malicious skills tracked (no competitor has this depth)
 2. **Methodology Workflows** — TDD/SDD/BDD comparison + step-by-step guides
 3. **Comprehensive Reference** — 19K lines across 16 specialized guides (24× more reference material than everything-cc)
 4. **Educational Progression** — 271-question quiz, beginner → expert path
@@ -233,8 +233,8 @@ graph LR
 **Outcome**: Protect production systems from AI-specific attacks.
 
 **Only guide with systematic threat tracking**:
-- **18 CVE-mapped vulnerabilities** — Prompt injection, data exfiltration, code injection
-- **341 malicious skills catalogued** — Unicode injection, hidden instructions, auto-execute patterns
+- **24 CVE-mapped vulnerabilities** — Prompt injection, data exfiltration, code injection
+- **655 malicious skills catalogued** — Unicode injection, hidden instructions, auto-execute patterns
 - **Production hardening workflows** — MCP vetting, injection defense, audit automation
 
 [Threat Database →](./machine-readable/threat-db.yaml) | [Security Guide →](./guide/security-hardening.md)
@@ -427,7 +427,7 @@ Claude Code can generate 1.75x more logic errors than human-written code ([ACM 2
 
 ### 2. Never Approve MCPs from Unknown Sources
 
-18 CVEs identified in Claude Code ecosystem. 341 malicious skills in supply chain. MCP servers can read/write your codebase.
+24 CVEs identified in Claude Code ecosystem. 655 malicious skills in supply chain. MCP servers can read/write your codebase.
 
 **Strategy:** Systematic audit (5-min checklist). Community-vetted MCP Safe List. Vetting workflow documented in guide.
 
@@ -462,7 +462,7 @@ TDD/SDD/BDD are not optional with Claude Code. AI accelerates bad code as much a
 | # | Rule | Key Metric | Action |
 |---|------|------------|--------|
 | 1 | Verify Trust | 1.75x more logic errors | Test everything, peer review |
-| 2 | Vet MCPs | 18 CVEs, 341 malicious skills | 5-min audit checklist |
+| 2 | Vet MCPs | 24 CVEs, 655 malicious skills | 5-min audit checklist |
 | 3 | Manage Context | 70% = precision loss | `/compact` at 70%, `/clear` at 90% |
 | 4 | Start Simple | 2-week test period | Phase 1→4 progressive adoption |
 | 5 | Use Methodologies | AI amplifies good AND bad | TDD/SDD/BDD by context |
@@ -552,13 +552,13 @@ claude plugin install session-summary@florian-claude-tools
 | Tool | Purpose | Maintained By |
 |------|---------|---------------|
 | [claude-code-security-review](https://github.com/anthropics/claude-code-security-review) | GitHub Action for automated security scanning | Anthropic (official) |
-| This Guide's Threat DB | Intelligence layer (18 CVEs, 341 malicious skills) | Community |
+| This Guide's Threat DB | Intelligence layer (24 CVEs, 655 malicious skills) | Community |
 
 **Workflow**: Use GitHub Action for automation → Consult Threat DB for threat intelligence.
 
 ### Threat Database
 
-**18 CVE-mapped vulnerabilities** and **341 malicious skills** tracked in [`machine-readable/threat-db.yaml`](./machine-readable/threat-db.yaml):
+**24 CVE-mapped vulnerabilities** and **655 malicious skills** tracked in [`machine-readable/threat-db.yaml`](./machine-readable/threat-db.yaml):
 
 | Threat Category | Count | Examples |
 |----------------|-------|----------|
@@ -623,7 +623,7 @@ This guide is the result of **6 months of daily practice** with Claude Code. The
 **What you'll find:**
 - Patterns verified in production (not theory)
 - Trade-off explanations (not just "here's how to do it")
-- Security first (18 CVEs tracked)
+- Security first (24 CVEs tracked)
 - Transparency on limitations (Claude Code isn't magic)
 
 **What you won't find:**
