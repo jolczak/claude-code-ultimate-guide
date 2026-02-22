@@ -185,7 +185,8 @@ graph LR
 │  └─ audit-prompt        Setup audit & recommendations
 │
 ├─ 🤖 machine-readable/   AI-Optimized Index
-│  ├─ reference.yaml      Structured index (~2K tokens)
+│  ├─ reference.yaml      Structured index (~2K tokens) — powers landing site CMD+K search
+│  ├─ claude-code-releases.yaml  Structured releases changelog
 │  └─ llms.txt            Standard LLM context file
 │
 └─ 📚 docs/               78 Resource Evaluations
@@ -205,6 +206,7 @@ graph LR
 **We teach how Claude Code works and why patterns matter**:
 - [Architecture](./guide/architecture.md) — Internal mechanics (context flow, tool orchestration, memory management)
 - [Trade-offs](./guide/ultimate-guide.md#when-to-use-what) — Decision frameworks for agents vs skills vs commands
+- [Configuration Decision Guide](./guide/ultimate-guide.md#27-configuration-decision-guide) — Unified "which mechanism for what?" map across all 7 config layers
 - [Pitfalls](./guide/ultimate-guide.md#common-mistakes) — Common failure modes + prevention strategies
 
 **What this means for you**: Troubleshoot issues independently, optimize for your specific use case, know when to deviate from patterns.
@@ -479,6 +481,49 @@ TDD/SDD/BDD are not optional with Claude Code. AI accelerates bad code as much a
 | **[reference.yaml](./machine-readable/reference.yaml)** | Structured index with line numbers | ~2K |
 
 **Quick load**: `curl -sL https://raw.githubusercontent.com/FlorianBruniaux/claude-code-ultimate-guide/main/machine-readable/reference.yaml`
+
+### reference.yaml — Structure & Landing Site Search
+
+`reference.yaml` is organized into several top-level sections:
+
+| Section | Content |
+|---------|---------|
+| `lines` | Line number references for key sections in `ultimate-guide.md` |
+| `deep_dive` | Key → file path mappings for all guides, examples, hooks, agents, commands |
+| `decide` | Decision tree (when to use what) |
+| `stats` | Counters (templates, questions, CVEs…) |
+
+**The `deep_dive` section powers the [landing site](https://cc.bruniaux.com) CMD+K search.** The build script (`scripts/build-guide-index.mjs`) parses it to generate 160 search entries.
+
+#### How the search index works
+
+The CMD+K search on the landing site is an **explicit index** — not a full-text search. Only entries listed in `deep_dive` are indexed. Keywords are derived mechanically from the key name and file path, not from the file content.
+
+**Consequence**: adding a new guide section requires explicitly adding an entry to `deep_dive`, then running `pnpm build:search` in the landing repo.
+
+#### Maintaining reference.yaml
+
+**Adding a new entry** to `deep_dive`:
+```yaml
+deep_dive:
+  # existing entries...
+  my_new_section: "guide/my-new-file.md"          # local guide file
+  my_hook_example: "examples/hooks/bash/foo.sh"   # example file
+  my_section_ref: "guide/ultimate-guide.md:1234"  # with line number anchor
+```
+
+**Critical: avoid duplicate keys.** If a key appears twice in `deep_dive`, the YAML parser fails and the landing site search index becomes empty (0 entries). The build exits with a warning but no hard error:
+
+```
+[build-guide-index] ERROR: Failed to parse YAML: duplicated mapping key
+[build-guide-index] Generating empty guide-search-entries.ts
+```
+
+Use distinct names — e.g. if you need both a line-number reference and a file path for the same concept, suffix the line-number key with `_line`:
+```yaml
+security_gate_hook_line: 6907                              # line number ref
+security_gate_hook: "examples/hooks/bash/security-gate.sh" # file path ref
+```
 
 ---
 
