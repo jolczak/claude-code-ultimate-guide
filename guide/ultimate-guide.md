@@ -1567,14 +1567,15 @@ When approaching the red zone (75%+), `/compact` alone may not be enough. You ne
 
 ### Session vs. Persistent Memory
 
-Claude Code has two distinct memory systems. Understanding the difference is crucial for effective long-term work:
+Claude Code has three distinct memory systems. Understanding the difference is crucial for effective long-term work:
 
-| Aspect | Session Memory | Persistent Memory |
-|--------|----------------|-------------------|
-| **Scope** | Current conversation only | Across all sessions |
-| **Managed by** | `/compact`, `/clear` | `/memory` command, CLAUDE.md files |
-| **Lost when** | Session ends or `/clear` | Explicitly deleted from files |
-| **Use case** | Immediate working context | Long-term decisions, patterns |
+| Aspect | Session Memory | Auto-Memory (native) | Persistent Memory (Serena) |
+|--------|----------------|----------------------|---------------------------|
+| **Scope** | Current conversation only | Across sessions, per-project | Across all sessions |
+| **Managed by** | `/compact`, `/clear` | `/memory` command (automatic) | `write_memory()` via Serena MCP |
+| **Lost when** | Session ends or `/clear` | Explicitly deleted via `/memory` | Explicitly deleted from Serena |
+| **Requires** | Nothing | Nothing (v2.1.59+) | [Serena MCP server](#82-available-servers) |
+| **Use case** | Immediate working context | Key decisions, context snippets | Architectural decisions, patterns |
 
 **Session Memory** (short-term):
 - Everything in your current conversation
@@ -1582,7 +1583,14 @@ Claude Code has two distinct memory systems. Understanding the difference is cru
 - Managed with `/compact` (compress) and `/clear` (reset)
 - Disappears when you close Claude Code
 
-**Persistent Memory** (long-term):
+**Auto-Memory** *(native, v2.1.59+)*:
+- Built into Claude Code — no MCP server or configuration required
+- Claude automatically saves useful context (decisions, patterns, preferences) to `MEMORY.md` files
+- Organized per-project: `.claude/memory/MEMORY.md` or `~/.claude/projects/<path>/memory/MEMORY.md`
+- Managed with `/memory`: view, edit, or delete what's been saved
+- Survives across sessions automatically
+
+**Persistent Memory** (long-term, Serena MCP):
 - Requires [Serena MCP server](#82-available-servers) installed
 - Explicitly saved with `write_memory("key", "value")`
 - Survives across sessions
@@ -1606,7 +1614,8 @@ Claude Code has two distinct memory systems. Understanding the difference is cru
 
 **When to use which**:
 - **Session memory**: Active problem-solving, debugging, exploration
-- **Persistent memory**: Decisions you'll need in future sessions
+- **Auto-memory**: Decisions and context you want Claude to rediscover next session without manual effort (v2.1.59+)
+- **Persistent memory (Serena)**: Structured key-value store for architectural decisions across many projects
 - **CLAUDE.md**: Team conventions, project structure (versioned with git)
 
 ### Fresh Context Pattern (Ralph Loop)
@@ -2514,6 +2523,25 @@ tools: Write, Edit, Bash
 ```
 
 **Pro Users Note**: OpusPlan is particularly valuable for Pro subscribers with limited Opus tokens. It lets you leverage Opus reasoning for critical planning while preserving tokens for more sessions.
+
+**Budget Variant: SonnetPlan (Community Hack)**
+
+`opusplan` is hardcoded to Opus+Sonnet — there's no native `sonnetplan` alias. But you can remap what the `opus` and `sonnet` aliases resolve to via environment variables, effectively creating a Sonnet→Haiku hybrid:
+
+```bash
+# Add to ~/.zshrc
+sonnetplan() {
+    ANTHROPIC_DEFAULT_OPUS_MODEL=claude-sonnet-4-6 \
+    ANTHROPIC_DEFAULT_SONNET_MODEL=claude-haiku-4-5-20251001 \
+    claude "$@"
+}
+```
+
+With `sonnetplan`, `/model opusplan` routes:
+- **Plan Mode** → Sonnet 4.6 (via remapped `opus` alias)
+- **Act Mode** → Haiku 4.5 (via remapped `sonnet` alias)
+
+> **Caveat**: The model's self-report (`what model are you?`) is unreliable — models don't always know their own identity. Trust the status bar (`Model: Sonnet 4.6` in plan mode) or verify via billing dashboard. GitHub issue [#9749](https://github.com/anthropics/claude-code/issues/9749) tracks native support.
 
 ### Rev the Engine
 
@@ -19859,7 +19887,7 @@ _Quick jump:_ [Commands Table](#101-commands-table) · [Keyboard Shortcuts](#102
 | `/feedback` | Report bugs or send feedback to Anthropic | Support |
 | `/chrome` | Check Chrome connection, manage permissions | Mode |
 | `/config` | View and modify global settings | Config |
-| `/copy` | Copy last response to clipboard | Session |
+| `/copy` | Copy last response to clipboard — interactive picker to select specific code blocks, or "Always copy full response" option (v2.1.59+) | Session |
 | `/debug` | Systematic troubleshooting and error investigation | Debug |
 | `/doctor` | Run diagnostics and troubleshooting checks | Debug |
 | `/execute` | Exit Plan Mode | Mode |
@@ -19870,7 +19898,7 @@ _Quick jump:_ [Commands Table](#101-commands-table) · [Keyboard Shortcuts](#102
 | `/login` | Log in to Claude account | Auth |
 | `/logout` | Log out and re-authenticate | Auth |
 | `/mcp` | Manage Model Context Protocol servers | Config |
-| `/memory` | View and edit persistent context (CLAUDE.md files) | Config |
+| `/memory` | View and edit auto-memory (context Claude automatically saved across sessions via MEMORY.md) — v2.1.59+ | Config |
 | `/mobile` | Show App Store and Google Play download links | Info |
 | `/model` | Change model (with left/right arrows for effort slider) | Mode |
 | `/permissions` | Configure permission allowlists | Config |

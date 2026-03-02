@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- **SonnetPlan hack documenté** (`guide/ultimate-guide.md` §OpusPlan Mode) — variante budget Sonnet→Haiku via remap `ANTHROPIC_DEFAULT_OPUS_MODEL` + `ANTHROPIC_DEFAULT_SONNET_MODEL` : fonction shell `sonnetplan()`, routing Plan/Act, caveat self-report non fiable, lien issue GitHub [#9749](https://github.com/anthropics/claude-code/issues/9749). Nouveau template `examples/scripts/sonnetplan.sh` avec instructions d'installation et note de vérification (status bar vs self-report).
+
+- **Auto-memory documentée comme 3e système de mémoire natif** (`guide/ultimate-guide.md` §Session vs Persistent Memory) — passage de 2 à 3 systèmes (session / auto-memory native / Serena MCP), nouveau tableau 5×4, section dédiée "Auto-Memory (native, v2.1.59+)" avec chemin MEMORY.md et gestion `/memory`. Correction : l'ancienne description liait `/memory` à CLAUDE.md (inexact) et ignorait le système natif. Guidance "When to use which" mise à jour.
+- **`/memory` et `/copy` — descriptions commandes mises à jour** (`guide/ultimate-guide.md` §Command Reference) — `/memory` : corrigé vers auto-memory + MEMORY.md (v2.1.59+). `/copy` : enrichi avec picker interactif de blocs de code et option "Always copy full response" (v2.1.59+).
+
+- **`/batch` mis en avant** (`guide/cheatsheet.md`, `whitepapers/fr/07`, `whitepapers/fr/08`, `whitepapers/en/07`, `whitepapers/en/08`) — `/batch` = 5-30 agents parallèles dans des worktrees Git isolés, chacun ouvre une PR. Sections dédiées dans les whitepapers 07 (table /batch vs agent teams manuelles) et 08 (native alternative). Cheatsheet mise à jour avec `/simplify` + `/batch`.
+
 - **skills.sh security audits** (`guide/ultimate-guide.md` §Skills Marketplace) — nouvelle sous-section "Security Audits (February 2026)" : 3 partenaires indépendants (Socket analyse statique 97% F1, Snyk mcp-scan 0% faux positifs, Gen Agent Trust Hub monitoring continu), 4 niveaux de risque (Safe/Low/High/Critical), monitoring post-install, mental model "skill = dépendance exécutable". Trade-offs mis à jour : suppression warning "Early stage", ajout ✅ audits automatisés + monitoring continu. 3 références sources ajoutées (Vercel changelog, Snyk blog, Gen/PRNewswire). Source : [Vercel, 17 fév 2026](https://vercel.com/changelog/automated-security-audits-now-available-for-skills-sh).
 
 ## [3.29.2] - 2026-03-02

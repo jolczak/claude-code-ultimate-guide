@@ -29,6 +29,8 @@ tags: [cheatsheet, reference]
 | `/execute` | Exit Plan Mode (apply changes) |
 | `/model` | Switch model (sonnet/opus/opusplan) |
 | `/insights` | Usage analytics + optimization report |
+| `/simplify` | Detect over-engineering in changed code + auto-fix |
+| `/batch` | Large-scale refactors via 5–30 parallel worktree agents |
 | `/teleport` | Teleport session from web |
 | `/tasks` | Monitor background tasks |
 | `/remote-env` | Configure cloud environment |
