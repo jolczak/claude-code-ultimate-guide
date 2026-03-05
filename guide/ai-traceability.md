@@ -327,6 +327,63 @@ entire init
 entire capture --agent="claude-code"
 ```
 
+**How It Works (Hook Architecture):**
+
+```
+WITHOUT ENTIRE
+==============
+
+  Developer          Agent (Claude/Gemini/Codex)          Git
+  ---------          ---------------------------          ---
+  prompt ---------> reasons + edits files
+                    tool calls (Bash, Read, Edit...)
+  prompt ---------> continues...
+  "looks good" ---> session ends
+
+  git commit -----> ----------------------------------------> commit on feature/branch
+                                                               (code only, zero context)
+
+  Result: the code is there, but WHY and HOW are lost.
+  No record of prompts, reasoning, or abandoned approaches.
+
+
+WITH ENTIRE
+===========
+
+  Developer          Agent (Claude/Gemini/Codex)          Entire Hooks          Git
+  ---------          ---------------------------          ------------          ---
+
+  entire enable ---> installs 7 hooks automatically (once per repo)
+
+  [SESSION START] -----------------------------------------> hook SessionStart
+
+  prompt ---------> reasons + edits              ---------> hook UserPromptSubmit
+                    tool calls...                ---------> hook PreToolUse/PostToolUse
+
+  [AGENT ENDS] -------------------------------------------------> hook Stop
+                                                                   |
+                                                         CHECKPOINT created on
+                                                         shadow branch:
+                                                         entire/2b4c177-a5e3f2
+                                                                   |
+                                                         Contains:
+                                                         - full transcript
+                                                         - user prompts
+                                                         - file diffs
+                                                         - tool calls
+                                                         - token usage
+                                                         - human vs AI attribution %
+
+  git commit -----> ----------------------------------------> commit on feature/branch
+                                                               + auto-added trailer:
+                                                               "Entire-Checkpoint: a3b2c4"
+
+  git push -------> ----------------------------------------> code pushed normally
+                                                               shadow → entire/checkpoints/v1
+                                                               (orphan branch, zero conflicts)
+                                                               shadow branch auto-deleted
+```
+
 **Workflow with Claude Code:**
 
 ```bash
@@ -409,17 +466,25 @@ entire approve --approver="jane@company.com"
 
 **Architecture:**
 
-Entire stores data in `.entire/` directory with separate git branch:
+Entire stores checkpoints on an orphan branch — no common ancestor with `main`, so no merge conflicts and no history pollution:
 
 ```
-project/
-├─ .entire/
-│  ├─ config.yaml       # Configuration
-│  ├─ sessions/         # Session metadata
-│  └─ checkpoints/      # Named checkpoints
-└─ .git/
-   └─ refs/heads/entire/checkpoints/v1
+entire/checkpoints/v1/              ← orphan branch (no common ancestor with main)
+├─ a/b2c4d5e6f7/                    ← checkpoint ID (random hex)
+│  ├─ metadata.json                 ← summary, attribution %, token count
+│  └─ 0/
+│     ├─ full.jsonl                 ← complete session transcript
+│     ├─ prompt.txt                 ← user prompts
+│     └─ context.md                 ← generated context summary
+└─ c/d4e5f6a7b8/                    ← another checkpoint
+   └─ ...
+
+main ----o----o----o----o----> (normal code history, untouched)
+
+entire/checkpoints/v1 ----x----x----x----> (no common ancestor = no merge conflicts)
 ```
+
+Why orphan branch: `git clone --single-branch` ignores checkpoints (zero overhead for consumers). Multiple devs can push in parallel without conflicts (checkpoint IDs are unique).
 
 **Limitations:**
 
@@ -435,6 +500,33 @@ project/
 - ✅ Session replay for debugging complex AI decisions
 - ✅ Governance gates (approval required before actions)
 - ⚠️ Personal projects: May be overkill (simple `Co-Authored-By` suffices)
+
+**Go/No-Go evaluation thresholds (run a 2h spike before team rollout):**
+
+```bash
+# Install on a throwaway branch
+entire enable
+
+# After 2-3 normal sessions, measure:
+du -sh .git/refs/heads/entire/   # Storage overhead per session
+time git push                     # Push time including condensation
+ls .git/hooks/                    # Check for conflicts with existing hooks
+```
+
+| Metric | Green (proceed) | Red (stop) |
+|--------|----------------|-----------|
+| Checkpoint size | < 10 MB/session | > 10 MB → storage risk |
+| Push overhead | < 5s | > 5s → daily friction |
+| Repo growth | < 100 MB/week | > 100 MB/week |
+| Hook compatibility | No conflicts | Timeout or conflict → blocker |
+
+**Team size guidance:**
+
+| Team | Recommendation |
+|------|---------------|
+| Solo dev | `Co-Authored-By` trailer suffices |
+| 2-5 devs | Justified if multi-agent workflows or shared audit trail needed |
+| 5+ devs / enterprise | Strong fit (shared checkpoints, governance, compliance) |
 
 ### 5.2 Automated Attribution Hook
 

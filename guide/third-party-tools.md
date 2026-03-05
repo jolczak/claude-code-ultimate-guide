@@ -250,6 +250,30 @@ Agent-native platform for Git-integrated session capture with rewindable checkpo
 - macOS/Linux only (Windows via WSL)
 - Early stage (v1.x) - expect API changes
 
+**Delta vs common existing setups:**
+
+| Need | Typical existing setup | What Entire adds |
+|------|----------------------|-----------------|
+| Tool call logging | Local JSONL (7-day rotation) | Reasoning + attribution %, Git-permanent |
+| Human/AI attribution | Nothing | % per file, annotated per line, by model |
+| Agent handoffs | Manual context copy | Context checkpoint auto-passed to next agent |
+| Inter-dev handoff | Git commits/PRs | Shared readable checkpoints on `entire/checkpoints/v1` |
+| Session persistence | Local only, ephemeral | Git-native, permanent, shareable |
+| Governance | Custom pre-commit hooks | Policy-based approval gates + configurable audit export |
+
+**Evaluation (2h spike recommended before team rollout):**
+
+```bash
+entire enable  # Install on throwaway branch
+
+# After 2-3 normal sessions:
+du -sh .git/refs/heads/entire/   # Storage per session → flag if > 10 MB
+time git push                     # Push overhead → flag if > 5s
+ls .git/hooks/                    # Verify no conflict with existing hooks
+```
+
+Stop criteria: checkpoint > 10 MB/session, push overhead > 5s, or hook conflicts.
+
 > **Cross-ref**: Full Entire workflow with examples at [AI Traceability Guide](./ai-traceability.md#51-entire-cli). For compliance use cases, see [Security Hardening](./security-hardening.md).
 
 ---

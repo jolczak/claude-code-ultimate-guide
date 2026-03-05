@@ -1643,6 +1643,34 @@ See: `guide/observability.md` for native Claude Code session monitoring
 - ⚠️ Very new (launched Feb 10-12, 2026) - limited production feedback
 - 🔗 [GitHub repo](https://github.com/entireio/cli) / [entire.io](https://entire.io)
 
+**Agent handoff flow (how context actually passes between agents):**
+
+```
+Claude Code                    Gemini CLI                   Entire
+-----------                    ----------                   ------
+
+works on feature
+"blocked on X,
+ delegate to Gemini" ---------> hook PreToolUse[Task]
+                                (captures the handoff)
+                                                   |
+                                receives full       |
+                                context:            |
+                                - reasoning trace   |
+                                - files touched     |
+                                - decisions made    |
+                                - rejected approaches|
+                                                    |
+                                works...            |
+                                completes           |
+                                                    v
+                                               hook PostToolUse[Task]
+                                               (captures result)
+
+Result: each agent in the chain sees the reasoning of previous agents.
+No "cold start" — full context preserved across agent switches.
+```
+
 **When to use Entire CLI:**
 
 ```bash

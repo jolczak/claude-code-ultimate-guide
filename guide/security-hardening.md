@@ -578,6 +578,28 @@ The agent checks:
 | **Approvals** | Approver identity, timestamp, checkpoint reference | Permanent |
 | **Agent handoffs** | Source/target agents, context transferred | Permanent |
 
+**Approval gate flow:**
+
+```
+Developer    -->    commit + checkpoint
+                         |
+                         v
+                    [Policy Check]
+                    "Does this touch prisma/schema.prisma?"
+                    "Does this touch src/server/auth*?"
+                         |
+                    +----+----+
+                    |         |
+                 Low risk   High risk
+                    |         |
+                 Auto-OK   Approval Gate
+                           "Reviewer inspects:
+                            transcript + diffs + attribution %"
+                                 |
+                           Approve / Reject
+                           (immutable audit trail entry)
+```
+
 **Example compliance workflow:**
 
 ```bash
