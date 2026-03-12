@@ -76,7 +76,7 @@ Tool calls?                          │
 
 ### Tool Categories & Selection
 
-Claude Code has 5 tool categories, each optimized for different operations. Understanding which tool Claude chooses (and why) helps you write instructions that guide better tool selection.
+Claude Code has 6 tool categories, each optimized for different operations. Understanding which tool Claude chooses (and why) helps you write instructions that guide better tool selection.
 
 ```mermaid
 flowchart TD
@@ -85,6 +85,7 @@ flowchart TD
     ROOT --> EXECUTE
     ROOT --> WEB
     ROOT --> WORKFLOW
+    ROOT --> CONTROL
 
     subgraph READ["📖 Read Tools"]
         R1[Glob<br/>Find files by pattern]
@@ -114,6 +115,12 @@ flowchart TD
         WF2[NotebookEdit<br/>Jupyter notebooks]
     end
 
+    subgraph CONTROL["🎛️ Control Flow Tools"]
+        CF1[EnterPlanMode / ExitPlanMode<br/>Toggle plan mode]
+        CF2[EnterWorktree / ExitWorktree<br/>Worktree navigation]
+        CF3[AskUserQuestion<br/>Request human input]
+    end
+
     style ROOT fill:#E87E2F,color:#fff
     style R1 fill:#6DB3F2,color:#fff
     style R2 fill:#6DB3F2,color:#fff
@@ -128,6 +135,9 @@ flowchart TD
     style WB2 fill:#7BC47F,color:#333
     style WF1 fill:#B8B8B8,color:#333
     style WF2 fill:#B8B8B8,color:#333
+    style CF1 fill:#B8B8B8,color:#333
+    style CF2 fill:#B8B8B8,color:#333
+    style CF3 fill:#B8B8B8,color:#333
 
     click ROOT href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "Claude Code Tools"
     click R1 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "Glob — Find files by pattern"
@@ -143,6 +153,10 @@ flowchart TD
     click WB2 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "WebFetch"
     click WF1 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "TodoWrite — Task list"
     click WF2 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "NotebookEdit — Jupyter"
+    click CONTROL href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "Control Flow Tools"
+    click CF1 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "EnterPlanMode / ExitPlanMode"
+    click CF2 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "EnterWorktree / ExitWorktree"
+    click CF3 href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/core/architecture.md#2-the-tool-arsenal" "AskUserQuestion"
 ```
 
 <details>
@@ -154,11 +168,14 @@ WRITE:    Write (create), Edit (modify), MultiEdit (batch)
 EXECUTE:  Bash (shell), Task (sub-agent)  ← most powerful/risky
 WEB:      WebSearch, WebFetch
 WORKFLOW: TodoWrite, NotebookEdit
+CONTROL:  EnterPlanMode/ExitPlanMode, EnterWorktree/ExitWorktree, AskUserQuestion
 ```
 
 </details>
 
 > **Source**: [Architecture: Tools](../core/architecture.md#tools) — Line ~213
+
+> *Simplified — additional tools available. See [Architecture: Tool Arsenal](../core/architecture.md#tools) for the full list.*
 
 ---
 

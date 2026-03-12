@@ -279,6 +279,7 @@ flowchart TD
     A([Task to complete]) --> B{Need multiple<br/>Claude instances?}
     B -->|No| C([Single session<br/>Standard usage])
     B -->|Yes| D{How many<br/>instances?}
+    B -->|"Planning separation?"| B2{Need planning<br/>separation?}
 
     D -->|2-3| E{Need branch<br/>isolation?}
     E -->|Yes| F([Git worktrees<br/>Separate branches])
@@ -289,7 +290,7 @@ flowchart TD
     H -->|Sequential pipeline| J([Agent pipeline<br/>A → B → C])
     H -->|Mixed expertise| K([Specialist router<br/>Route by task type])
 
-    B2{Need planning<br/>separation?} --> L([Dual-instance<br/>Planner + Executor])
+    B2 --> L([Dual-instance<br/>Planner + Executor])
 
     style A fill:#F5E6D3,color:#333
     style B fill:#E87E2F,color:#fff
@@ -326,16 +327,15 @@ flowchart TD
 ```
 Need multiple instances?
 ├─ No → Single session
-└─ Yes → How many?
-         ├─ 2-3 → Need branch isolation?
-         │        ├─ Yes → Git worktrees
-         │        └─ No  → Multiple terminals
-         └─ 4+  → Task structure?
-                  ├─ Independent → Task tool (parallel sub-agents)
-                  ├─ Sequential  → Agent pipeline A→B→C
-                  └─ Mixed       → Specialist router
-
-Special case: Need planning separation? → Dual-instance (Planner + Executor)
+├─ Yes → How many?
+│        ├─ 2-3 → Need branch isolation?
+│        │        ├─ Yes → Git worktrees
+│        │        └─ No  → Multiple terminals
+│        └─ 4+  → Task structure?
+│                 ├─ Independent → Task tool (parallel sub-agents)
+│                 ├─ Sequential  → Agent pipeline A→B→C
+│                 └─ Mixed       → Specialist router
+└─ Planning separation? → Dual-instance (Planner + Executor)
 ```
 
 </details>

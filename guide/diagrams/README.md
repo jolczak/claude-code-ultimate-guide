@@ -1,12 +1,12 @@
 ---
 title: "Claude Code — Visual Diagrams"
-description: "41 Mermaid interactive diagrams covering all major Claude Code concepts"
+description: "48 Mermaid interactive diagrams covering all major Claude Code concepts"
 tags: [reference, architecture, diagrams, mermaid]
 ---
 
 # Claude Code — Visual Diagrams
 
-41 interactive Mermaid diagrams organized in 10 thematic files. Each diagram includes a Mermaid version (rendered natively on GitHub) and an ASCII fallback.
+48 interactive Mermaid diagrams organized in 10 thematic files. Each diagram includes a Mermaid version (rendered natively on GitHub) and an ASCII fallback.
 
 > For ASCII-only diagrams and a printable visual reference → [visual-reference.md](../core/visual-reference.md)
 
@@ -52,7 +52,9 @@ All diagrams use the consistent Bold Guy palette:
 | [08-security-and-production.md](./08-security-and-production.md) | 4 | 3-layer defense, sandbox decision, verification paradox, CI/CD pipeline |
 | [09-cost-and-optimization.md](./09-cost-and-optimization.md) | 4 | Model selection, cost optimization, subscription tiers, token reduction |
 | [10-adoption-and-learning.md](./10-adoption-and-learning.md) | 3 | Onboarding paths, UVAL protocol, trust calibration |
-| **Total** | **41** | |
+| [11-context-engineering.md](./11-context-engineering.md) | 4 | 3-layer context system, adherence degradation, modular architecture, rule placement |
+| [12-enterprise-governance.md](./12-enterprise-governance.md) | 3 | Governance risk tiers, MCP approval workflow, data classification |
+| **Total** | **48** | |
 
 ---
 
@@ -92,6 +94,17 @@ All diagrams use the consistent Bold Guy palette:
 1. [MCP Ecosystem Map](./05-mcp-ecosystem.md#mcp-server-ecosystem-map) — What servers exist
 2. [MCP Architecture](./05-mcp-ecosystem.md#mcp-architecture-client-server) — How it works
 3. [MCP Config Hierarchy](./05-mcp-ecosystem.md#mcp-config-hierarchy) — Where configs live
+
+### "I want to govern Claude Code across my team"
+1. [Governance Risk Tiers](./12-enterprise-governance.md#governance-risk-tiers) — Which control level fits your context?
+2. [MCP Governance Workflow](./12-enterprise-governance.md#mcp-governance-workflow) — Approval pipeline for MCP servers
+3. [Data Classification Rules](./12-enterprise-governance.md#data-classification--claude-code-access-rules) — What Claude can and cannot access
+
+### "I want to improve Claude's context adherence"
+1. [Rule Placement Decision Tree](./11-context-engineering.md#rule-placement-decision-tree) — Where does this rule go?
+2. [3-Layer Context System](./11-context-engineering.md#the-3-layer-context-system) — Global / Project / Session
+3. [Context Budget & Adherence](./11-context-engineering.md#context-budget--adherence-degradation) — Why rules stop being followed
+4. [Modular Architecture](./11-context-engineering.md#monolithic-vs-modular-architecture) — Path-scoping as the fix
 
 ---
 

@@ -21,14 +21,14 @@ flowchart TD
     A([Task to complete]) --> B{Task complexity?}
 
     B -->|Simple| C["Simple tasks:<br/>typo fixes, renames,<br/>formatting, translations"]
-    C --> D([Haiku 4.5<br/>💰 Cheapest, fastest<br/>~$0.80/MTok input])
+    C --> D([Haiku 4.5<br/>💰 Cheapest, fastest<br/>~5x cheaper than Sonnet])
 
     B -->|Standard| E["Standard tasks:<br/>feature implementation,<br/>bug fixes, refactoring"]
-    E --> F([Sonnet 4.5/4.6<br/>💰💰 Balanced<br/>~$3/MTok input])
+    E --> F([Sonnet 4.5/4.6<br/>💰💰 Balanced<br/>Best price/quality ratio])
 
     B -->|Complex| G{Needs deep<br/>reasoning?}
     G -->|Yes| H["Complex tasks:<br/>architecture decisions,<br/>security review,<br/>multi-file analysis"]
-    H --> I([Opus 4.6 / Sonnet + --think-hard<br/>💰💰💰 Most capable<br/>~$15/MTok input])
+    H --> I([Opus 4.6 / Sonnet + --think-hard<br/>💰💰💰 Most capable<br/>~5x more than Sonnet])
 
     G -->|No: just large| J["Large but clear tasks:<br/>big refactors,<br/>doc generation"]
     J --> F
@@ -56,6 +56,8 @@ flowchart TD
     click J href "https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/guide/ultimate-guide.md#25-model-selection--thinking-guide" "Large but clear tasks"
 ```
 
+> **Pricing**: Relative costs shown — check current rates at [anthropic.com/pricing](https://www.anthropic.com/pricing).
+
 **Budget modifier** — On constrained plans, downgrade one tier per phase:
 
 | Plan | Planning phase | Implementation phase |
@@ -71,11 +73,11 @@ flowchart TD
 
 ```
 Task complexity?
-├─ Simple (typos, format, rename) → Haiku 4.5    ($  — ~5x cheaper)
-├─ Standard (features, bugs)      → Sonnet 4.5/4.6 ($$ — balanced)
+├─ Simple (typos, format, rename) → Haiku 4.5       ($  — ~5x cheaper than Sonnet)
+├─ Standard (features, bugs)      → Sonnet 4.5/4.6  ($$ — best price/quality ratio)
 └─ Complex (architecture, sec.)
-   ├─ Needs deep reasoning?        → Opus 4.6      ($$$ — most capable)
-   └─ Just large/clear?            → Sonnet 4.6    ($$ — handles it)
+   ├─ Needs deep reasoning?        → Opus 4.6        ($$$ — ~5x more than Sonnet)
+   └─ Just large/clear?            → Sonnet 4.6      ($$ — handles it)
 
 Budget modifier (downgrade one tier on constrained plans):
   Max/API    → Opus plan, Sonnet impl
