@@ -6,45 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
-
-- **`guide/workflows/github-actions.md`** — New workflow guide (5 production-ready patterns using `anthropics/claude-code-action`, 6.2k stars, v1.0). Covers: (1) on-demand PR review via `@claude` mention, (2) automatic review on every push, (3) issue triage and labeling, (4) security-focused review on sensitive path changes, (5) scheduled weekly repo health check. Includes setup via `/install-github-app`, authentication alternatives (OAuth vs API key), cost control (concurrency limits, token caps), and fork safety (`pull_request_target` vs `pull_request`).
-
-- **`guide/ultimate-guide.md`** — Two additions: (1) Cross-reference callout to `github-actions.md` in the CI/CD section. (2) New "Fighting Vibe Code Degradation" subsection covering **desloppify** ([github.com/peteromallet/desloppify](https://github.com/peteromallet/desloppify)): a community tool that installs a prioritized fix-loop as a Claude Code skill, scanning for dead code, duplication, and structural issues until a quality score target is hit.
-
-- **`examples/commands/resources/threat-db.yaml`** — Updated to v2.7.0 (2026-03-13). Added 5 new threat intelligence sources: CVE-2026-26118 Azure MCP Server SSRF (THN/Tenable), OpenClaw agentic AI risk analysis (ReversingLabs), Taskflow Agent open-source vulnerability scanner (GitHub Security Lab), OpenAI Codex Security research preview, and DryRun Security research on AI coding agents introducing vulnerabilities in 87% of PRs.
-
-- **`CLAUDE.md`** — Added "Behavioral Rules" section: 5 rules derived from observed friction patterns (always update CHANGELOG.md, exhaustive first-pass analysis, use absolute paths, closing checklist, bias toward action).
-
-- **`examples/scripts/test-prompt-caching.ts`** — Standalone TypeScript script (zero deps, native fetch) to verify Anthropic prompt caching is active on any API key. Runs 3 identical calls and checks write/read metrics. Documents 4 production gotchas not in official docs: (1) `anthropic-beta: prompt-caching-2024-07-31` header is required even for Claude 4.x, (2) effective token threshold for Claude 4.x is ~2048+ not the documented 1024, (3) cached tokens are excluded from `input_tokens`, (4) new nested `cache_creation` object format with `ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens`. Usage: `ANTHROPIC_API_KEY=sk-ant-... npx tsx test-prompt-caching.ts`.
-
-- **`CLAUDE.md` Behavioral Rules section** — New `## Behavioral Rules` section with 5 rules derived from observed session friction patterns (via `/insights` analysis): (1) always update `CHANGELOG.md` after any modification, (2) be exhaustive on first pass for audits and reviews, (3) use absolute paths in reports and documentation, (4) closing checklist confirming files changed + changelog + commit hash, (5) bias toward action — no extended planning loops without deliverables.
+## [3.35.0] - 2026-03-13
 
 ### Added
 
-- **Desloppify tool** — New subsection "Fighting Vibe Code Degradation" in §9.8 (Vibe Coding). Documents `desloppify` ([peteromallet/desloppify](https://github.com/peteromallet/desloppify)), a community tool that installs a fix-loop workflow directly into Claude Code as a skill (`desloppify update-skill claude`) and runs a scan → next → fix → resolve loop to systematically improve code quality. Includes install snippet, the loop commands, and an early-stage status note with token cost caveat. Tagged early-stage (released February 2026, ~2K stars, no production-scale feedback yet).
+- **`guide/workflows/github-actions.md`** — 5 production-ready patterns for GitHub Actions CI/CD with `anthropics/claude-code-action` (6.2k stars, v1.0): on-demand PR review via `@claude` mention, automatic review on every push, issue triage and labeling, security-focused review on sensitive paths (`auth/**`, `payments/**`), scheduled weekly repo health check. Includes cost control table (Haiku vs Sonnet per pattern), concurrency setup, fork safety (`pull_request_target` guard), Bedrock/Vertex auth alternatives. Cross-linked from guide §9.3 and `guide/workflows/README.md`.
 
-- **`guide/workflows/github-actions.md`** — New workflow guide (5 production-ready patterns for GitHub Actions CI/CD with `anthropics/claude-code-action`, 6.2k stars, v1.0). Covers: (1) interactive PR review via `@claude` mention, (2) automatic review on push, (3) issue triage and labeling, (4) security-focused review triggered on sensitive paths (`auth/**`, `payments/**`), (5) scheduled weekly repo health check. Includes cost control table (Haiku vs Sonnet per pattern), concurrency setup to prevent parallel runs, fork safety guard for public repos, and Bedrock/Vertex authentication alternatives. Cross-linked from section 9.3 of the main guide and added to `guide/workflows/README.md`.
+- **`guide/workflows/rpi.md`** — RPI: Research → Plan → Implement. 3-phase feature development with explicit GO gates: Research → `RESEARCH.md`, Plan → `PLAN.md`, Implement → working code. Slash command templates (`/rpi:research`, `/rpi:plan`, `/rpi:implement`), worked example (rate limiting on Express API), and comparison matrix vs Plan-Driven, TDD, Spec-First. Best for features where discovering a wrong assumption late is expensive.
 
-- **`guide/workflows/README.md`**: Added GitHub Actions Workflows entry to Development Workflows section with description, key topics, and "when to use" guidance.
+- **`guide/workflows/changelog-fragments.md`** — Changelog Fragments workflow: one YAML fragment per PR, written at implementation time, validated by CI, assembled at release. 3-layer enforcement: CLAUDE.md workflow rule + `UserPromptSubmit` hook (3-tier: enforcement → discovery → contextual) + independent CI migration check. Documents the `UserPromptSubmit` tier pattern as a reusable architecture for any mandatory workflow step.
 
-- **`guide/workflows/rpi.md`** — New workflow guide (RPI: Research → Plan → Implement). 3-phase feature development pattern with explicit validation gates: Research produces `RESEARCH.md`, Plan produces `PLAN.md`, Implement produces working code. Each gate requires explicit GO before the next phase. Includes slash command templates (`/rpi:research`, `/rpi:plan`, `/rpi:implement`), a worked example (adding rate limiting to an Express API), and comparison matrix vs Plan-Driven, TDD, and Spec-First. Best for features where discovering a wrong assumption late is expensive.
+- **`examples/hooks/bash/smart-suggest.sh`** — `UserPromptSubmit` behavioral coach hook: Tier 0 enforcement (changelog fragment required before PR, plan-before-code), Tier 1 discovery (test-loop, retex, dupes, monitoring loop, security audit, release), Tier 2 contextual (code review, debugging, architecture, session resume). Max 1 suggestion per prompt, dedup guard, ROI logging to `~/.claude/logs/smart-suggest.jsonl`, silent exit on no match.
 
-- **`guide/workflows/changelog-fragments.md`** — New workflow guide for the Changelog Fragments pattern: one YAML fragment per PR, written at implementation time, validated by CI, assembled automatically at release. Covers 3-layer enforcement: (1) CLAUDE.md workflow rule for autonomous fragment creation, (2) `UserPromptSubmit` hook with 3-tier priority (enforcement → discovery → contextual), (3) independent CI migration check job. Includes the `UserPromptSubmit` tier pattern as a reusable hook architecture for any mandatory workflow step.
+- **`guide/core/known-issues.md`** — "LLM Day-to-Day Performance Variance" section: session-to-session quality variance (shorter responses, conservative suggestions, edge-case refusals) documented as expected behavior, not a bug. 4 root causes: probabilistic inference, MoE routing variance, infrastructure variance, context sensitivity. Observable signals table and ruling-out checklist.
 
-- **`examples/hooks/bash/smart-suggest.sh`** — New `UserPromptSubmit` hook implementing the 3-tier behavioral coach pattern: Tier 0 enforcement (changelog fragment required before PR, plan-before-code), Tier 1 discovery (test-loop, retex, dupes, monitoring, security, release), Tier 2 contextual (code review, debugging, architecture, session resume). Max 1 suggestion per prompt (first match wins), dedup guard, ROI logging to `~/.claude/logs/smart-suggest.jsonl`, silent exit on no match.
+- **`examples/scripts/test-prompt-caching.ts`** — Standalone TypeScript script (zero deps, native fetch) to verify Anthropic prompt caching on any API key. Runs 3 identical calls, checks write/read metrics. Documents 4 undocumented production gotchas: `anthropic-beta: prompt-caching-2024-07-31` header required for Claude 4.x, effective threshold ~2048+ tokens, cached tokens excluded from `input_tokens`, new nested `cache_creation` object format.
 
-- **`guide/core/known-issues.md`** — New section "LLM Day-to-Day Performance Variance": documents session-to-session output quality variance (shorter responses, conservative suggestions, edge-case refusals) as expected behavior, not a bug. Explains the 4 root causes (probabilistic inference, MoE routing variance, infrastructure variance, context sensitivity) and provides an observable signals table. Includes a practical checklist for ruling out controllable factors before concluding "the model degraded."
+- **`cc-sessions discover` documentation** — "Session Pattern Discovery" subsection in §2.x: `discover` subcommand n-gram mode (local, ~3s) vs `--llm` mode (semantic via `claude --print`), 20% rule decision framework (CLAUDE.md rule / skill / command), install instructions. Cross-reference added after the 20% rule callout in §5.1.
 
-- **`cc-sessions discover` documentation** — New subsection "Session Pattern Discovery" in §2.x (Session Management) covering the `discover` subcommand: n-gram mode (local, free, ~3s for 12 projects) vs `--llm` mode (semantic analysis via `claude --print`). Includes example output, the 20% rule decision framework (CLAUDE.md rule / skill / command categorization), and install instructions. Cross-reference added after the 20% rule callout in §5.1.
+- **`examples/scripts/cc-sessions.py`** — Synced from 498-line stale copy to full 1225-line version from `~/bin/cc-sessions`: complete `discover` subcommand, incremental cache, Jaccard deduplication, all filtering logic. GitHub source header added.
 
-- **`examples/scripts/cc-sessions.py` synced** — Updated from 498-line stale copy to the full 1225-line version from `~/bin/cc-sessions`. Includes the complete `discover` subcommand (n-gram analysis + `--llm` mode), incremental discover cache, Jaccard deduplication, and all filtering logic. GitHub source header added.
+- **GitHub repo [FlorianBruniaux/cc-sessions](https://github.com/FlorianBruniaux/cc-sessions)** — v1.0.0 published with curl install instructions.
 
-- **`examples/scripts/README.md`** — Updated cc-sessions entry: added `discover` subcommand examples (n-gram and `--llm`), GitHub repo link ([FlorianBruniaux/cc-sessions](https://github.com/FlorianBruniaux/cc-sessions)), and curl install instructions.
+### Updated
 
-- **`machine-readable/reference.yaml`** — Added `cc_sessions_github` and `cc_sessions_discover` entries alongside the updated `cc_sessions_script` comment.
+- **`guide/ultimate-guide.md`** — Two additions: cross-reference callout to `github-actions.md` in CI/CD section; "Fighting Vibe Code Degradation" subsection covering desloppify ([peteromallet/desloppify](https://github.com/peteromallet/desloppify)) — scan → next → fix → resolve loop as a Claude Code skill, early-stage (Feb 2026, ~2K stars), token cost caveat.
 
-- **GitHub repo created**: [FlorianBruniaux/cc-sessions](https://github.com/FlorianBruniaux/cc-sessions) — v1.0.0 release tagged and published.
+- **`examples/commands/resources/threat-db.yaml`** — v2.7.0 (2026-03-13). +5 threat sources: CVE-2026-26118 Azure MCP Server SSRF (THN/Tenable), OpenClaw agentic AI risk (ReversingLabs), Taskflow Agent scanner (GitHub Security Lab), OpenAI Codex Security research preview, DryRun Security 87% vulnerability rate in AI-built PRs.
+
+- **`CLAUDE.md`** — "Behavioral Rules" section: 5 rules from observed session friction: always update CHANGELOG.md, exhaustive first pass, absolute paths, closing checklist, bias toward action.
+
+- **`examples/scripts/README.md`** — cc-sessions entry updated with `discover` subcommand examples, GitHub repo link, curl install instructions.
+
+- **`machine-readable/reference.yaml`** — Added `cc_sessions_github`, `cc_sessions_discover`, `changelog_fragments_*`, `smart_suggest_hook`, `rpi_*` entries.
 
 ## [3.34.11] - 2026-03-13
 
