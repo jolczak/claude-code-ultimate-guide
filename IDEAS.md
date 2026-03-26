@@ -20,7 +20,27 @@ Unified security research covering MCP vulnerabilities, prompt injection, and se
 
 ## High Priority
 
-*(No items currently)*
+### gstack-inspired commands (deferred from 2026-03-26 audit)
+
+Audit of [gstack](https://github.com/garrytan/gstack) (Garry Tan's Claude Code sprint toolkit) identified these gaps. HIGH-priority items were already implemented (`/investigate`, `/qa`, `/canary`, `/land-and-deploy`, `/review-pr` updates). Remaining items deferred here.
+
+**`/autoplan`** — single command that chains CEO → Design → Eng review automatically with encoded decision principles. Classify decisions as Mechanical (auto-decide) vs Taste (surface to user). Prerequisite: our `/plan-ceo-review` and `/plan-eng-review` commands must be stable first. Source: `gstack/autoplan/SKILL.md`.
+
+**`/office-hours`** — YC-style product diagnostic with 6 forcing questions before any planning. Upstream of `/plan-ceo-review`. Writes a design brief to `~/.claude/projects/`. Source: `gstack/office-hours/SKILL.md`.
+
+**`/design-review`** — live-site visual audit + fix loop. Screenshots a URL, audits spacing/typography/color/contrast, detects AI slop patterns (purple gradients, 3-column grids, centered everything). Requires browser tooling standardization first. Source: `gstack/design-review/SKILL.md` + `design-checklist.md`.
+
+**`/benchmark`** — Core Web Vitals regression detection (TTFB, FCP, LCP, DOM load, bundle sizes). Baseline comparison with regression thresholds (>50% OR >500ms = regression). Source: `gstack/benchmark/SKILL.md`.
+
+**`/retro`** — weekly retrospective with git log analysis per contributor. Current vs prior window. Source: `gstack/retro/SKILL.md`.
+
+**`/freeze` + `/unfreeze`** — runtime directory edit lock via PreToolUse hook (hard deny, not warning). State file at `~/.claude/freeze-dir.txt`. Composable with `/careful` into a `/guard` command. Source: `gstack/freeze/SKILL.md`.
+
+**`/document-release`** — post-ship documentation updates. Reads diff since last release, updates README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md, polishes CHANGELOG, cleans TODOS. Source: `gstack/document-release/SKILL.md`.
+
+**Effort compression tables** — add to skill templates: human time vs AI time per task type. Architecture decision for skill format — discuss before implementing across all skills.
+
+**Trigger to implement**: reader requests, or when we do a "workflow completeness" sprint.
 
 ---
 

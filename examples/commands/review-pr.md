@@ -98,6 +98,38 @@ git log --oneline -10 | grep "Co-Authored-By: Claude"
 
 If detected, note: "This appears to be a follow-up pass. I'll focus on new issues and avoid repeating previous suggestions."
 
+### Scope Drift Detection
+
+Cross-reference the PR diff against the original plan to catch unintended changes.
+
+```bash
+# Detect current branch
+BRANCH=$(git branch --show-current)
+
+# Search for a plan file associated with this branch
+ls ~/.claude/plans/ 2>/dev/null | grep -i "$BRANCH" | head -3
+
+# Files actually changed in this PR
+git diff --stat origin/main...HEAD | head -30
+```
+
+If a plan file exists for this branch:
+1. Read the plan file — what was the stated scope?
+2. Compare stated scope vs actual `git diff --stat`
+3. Flag files changed that were NOT mentioned in the plan
+
+Output format:
+```
+SCOPE DRIFT CHECK
+─────────────────────────────────────────
+Plan scope:    [what the plan said would change]
+Actual diff:   [files actually changed]
+Drift:         [files changed outside plan scope, if any]
+Verdict:       IN SCOPE / DRIFT DETECTED
+```
+
+If no plan file exists: note "No plan file found for this branch — skipping scope drift check."
+
 ### Multi-Agent Specialization
 
 Launch 3 parallel specialized agents (see [Split Role Sub-Agents](../../guide/ultimate-guide.md#split-role-sub-agents)):
@@ -123,12 +155,20 @@ Check for:
 
 **Agent 3: Defensive Code Auditor**
 ```
-Focus: Silent failures, masked bugs, hidden fallbacks
+Focus: Silent failures, masked bugs, hidden fallbacks, LLM output trust boundary
 Check for:
 - Empty catch blocks: try { } catch (e) { } // swallows error
 - Silent fallbacks: return data || DEFAULT // hides missing data
 - Unchecked null/undefined: user.name without validation
 - Ignored promise rejections: async fn without .catch()
+
+LLM Output Trust Boundary (especially relevant in AI-assisted codebases):
+- LLM-generated values (emails, URLs, names, IDs) written to DB or passed to
+  downstream functions without format validation — add lightweight guards
+  (email regex, URL parsing, .trim()) before persisting
+- Structured tool output (arrays, objects from AI tools) accepted without
+  type/shape checks before database writes or rendering
+- AI-generated SQL or code strings executed without sanitization
 ```
 
 ### Anti-Hallucination Rules
@@ -178,6 +218,27 @@ After agents report findings:
 - Overly nested code (if <3 levels)
 - Documentation gaps (if code self-documenting)
 ```
+
+### Fix-First Heuristic
+
+Determine whether to auto-fix each finding or surface it for user decision.
+
+```
+AUTO-FIX (apply without asking):          ASK (needs human judgment):
+├─ Dead code / unused variables            ├─ Security changes (auth, XSS, injection)
+├─ N+1 queries (missing eager loading)     ├─ Race conditions
+├─ Stale comments contradicting code       ├─ Design decisions
+├─ Magic numbers → named constants         ├─ Large fixes (>20 lines changed)
+├─ Missing import / path mismatches        ├─ Enum completeness
+├─ Variables assigned but never read       ├─ Anything removing functionality
+└─ Obvious version/doc mismatches          └─ User-visible behavior changes
+```
+
+**Rule**: If a senior engineer would apply the fix in 30 seconds without discussion, it's AUTO-FIX. If reasonable engineers could disagree, it's ASK.
+
+After agents report findings:
+1. Apply all AUTO-FIX items immediately with minimal targeted edits
+2. Batch all ASK items into a single user decision (not one question per item)
 
 ### Auto-Fix Loop (Optional)
 
