@@ -10586,6 +10586,120 @@ exit 0
 
 ---
 
+## 7.6 Hook Profiles
+
+**Reading time**: 5 minutes
+**Skill level**: Team setup
+
+As your hook collection grows, a tension emerges: some developers want minimal overhead (fast startup, no blocking checks), while security-conscious members or CI pipelines want strict enforcement. A single `settings.json` can't serve both well.
+
+**The pattern**: gate each hook behind an environment variable that declares the desired enforcement level. Three levels cover most teams:
+
+```
+minimal   — only critical safety hooks (secrets detection, permission blocks)
+standard  — development workflow hooks (format, typecheck, lint)
+strict    — full enforcement (governance, compliance, MCP health, quality gates)
+```
+
+### Implementation
+
+Each hook checks `ECC_HOOK_PROFILE` before executing:
+
+```bash
+#!/bin/bash
+# .claude/hooks/format-on-edit.sh
+# Runs at: standard or strict only
+
+REQUIRED_LEVEL="${HOOK_REQUIRED_LEVEL:-standard}"
+CURRENT_LEVEL="${ECC_HOOK_PROFILE:-standard}"
+
+# Level hierarchy: minimal < standard < strict
+level_value() {
+  case "$1" in
+    minimal)  echo 1 ;;
+    standard) echo 2 ;;
+    strict)   echo 3 ;;
+    *)        echo 2 ;;
+  esac
+}
+
+REQUIRED_VAL=$(level_value "$REQUIRED_LEVEL")
+CURRENT_VAL=$(level_value "$CURRENT_LEVEL")
+
+if [[ "$CURRENT_VAL" -lt "$REQUIRED_VAL" ]]; then
+  exit 0  # Skip silently
+fi
+
+# Hook logic follows...
+```
+
+**Configure per-hook level** in `settings.json` via the environment prefix:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "HOOK_REQUIRED_LEVEL=minimal .claude/hooks/secrets-scan.sh"
+        }]
+      },
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "HOOK_REQUIRED_LEVEL=standard .claude/hooks/format-on-edit.sh"
+        }]
+      },
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "HOOK_REQUIRED_LEVEL=strict .claude/hooks/governance-capture.sh"
+        }]
+      }
+    ]
+  }
+}
+```
+
+**Activate per session** — or export globally in your shell profile:
+
+```bash
+# Exploration session — fast startup, minimal checks
+export ECC_HOOK_PROFILE=minimal && claude
+
+# Standard developer session (default if unset)
+export ECC_HOOK_PROFILE=standard && claude
+
+# Security review, CI/CD, pre-release
+export ECC_HOOK_PROFILE=strict && claude
+```
+
+Or set per-project in `.envrc` (direnv):
+
+```bash
+# .envrc — activated automatically on cd
+export ECC_HOOK_PROFILE=strict
+```
+
+### When to Use Each Level
+
+| Profile | Use case | Hooks active |
+|---------|----------|-------------|
+| `minimal` | Exploration, quick prototypes, CI agents | Secrets detection, permission blocks |
+| `standard` | Day-to-day development | + format, typecheck, lint, smart-suggest |
+| `strict` | Security reviews, pre-release, compliance | + governance, quality gates, MCP health |
+
+### Key Design Rules
+
+- **Security hooks** (`minimal`) should never be gated — hardcode them without the level check
+- **Default to `standard`** if `ECC_HOOK_PROFILE` is unset — never default to `minimal` as the fallback
+- **Document in CLAUDE.md** which hooks run at which level so teammates aren't surprised
+
+> **Credit**: Hook profile gating pattern from [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) (Affaan Mustafa, Anthropic hackathon winner).
+
+---
+
 # 8. MCP Servers
 
 _Quick jump:_ [What is MCP](#81-what-is-mcp) · [Available Servers](#82-available-servers) · [Configuration](#83-configuration) · [Server Selection Guide](#84-server-selection-guide) · [Plugin System](#85-plugin-system) · [MCP Security](#86-mcp-security)
@@ -21811,6 +21925,98 @@ Both require more setup than the manual loop above, and neither eliminates the n
 - [§9.10 Continuous Improvement Mindset](#910-continuous-improvement-mindset) — the decision framework for when to encode vs. accept as an edge case
 - [§Observability: Reading for Quality](#reading-for-quality-not-just-quantity) — qualitative JSONL analysis patterns
 - [§9.12 Git Best Practices](#912-git-best-practices--workflows) — version control for your config alongside your code
+
+---
+
+## 9.24 Instinct-Based Continuous Learning
+
+**Reading time**: 6 minutes
+**Skill level**: Month 2+
+
+> **Relationship to §9.23**: The Update Loop handles *deliberate* config maintenance — you notice drift, you fix it. Instinct-based learning handles *incidental* capture — useful observations you'd otherwise forget by end of session.
+
+### The Problem with Manual Learning
+
+Standard session-end prompts ("what did you learn this session?") produce verbose summaries that rarely get acted on. The friction between "observation" and "encoded rule" is high enough that most corrections never make it back into your config.
+
+What actually gets encoded: corrections you make twice, then a third time, until the repetition forces you to write a rule. That's too slow, and it only captures the painful patterns — not the useful ones.
+
+### What Are Instincts?
+
+**Instincts** are lightweight, low-commitment observations — candidate rules that haven't been validated yet. They sit below skills (stable, tested, promoted) and below memory (project context, decisions):
+
+```
+Session observation
+      ↓
+  Instinct (low confidence, 0.1–0.4)
+      ↓  confirmed across multiple sessions
+  Candidate rule (medium confidence, 0.5–0.7)
+      ↓  tested explicitly
+  Skill or CLAUDE.md rule (high confidence, 0.8+)
+```
+
+Each instinct tracks: **content** (the observation), **confidence** (0.0–1.0, starts low and grows with confirmation), **source** (which session/context), and **decay** (confidence drops if not confirmed over time).
+
+### Capturing at the Right Moment
+
+The key design choice: capture at the **Stop** hook, not at UserPromptSubmit.
+
+**Why Stop, not UserPromptSubmit**: UserPromptSubmit runs before every message — adding extraction logic there adds latency to every interaction. Stop runs once when the session ends — zero impact on session speed, and the full session context is available for pattern extraction.
+
+```bash
+#!/bin/bash
+# .claude/hooks/capture-instincts.sh
+# Stop hook: extract candidate observations from the completed session
+
+SESSION_LOG="$HOME/.claude/sessions/current.jsonl"
+INSTINCTS_FILE="$HOME/.claude/instincts/pending.yaml"
+
+# Skip short sessions — not enough signal
+LINE_COUNT=$(wc -l < "$SESSION_LOG" 2>/dev/null || echo 0)
+if [[ "$LINE_COUNT" -lt 5 ]]; then
+  exit 0
+fi
+
+# Non-interactive extraction — no latency impact on the user
+claude --print "Review the session log at $SESSION_LOG.
+Extract 0-3 candidate instincts: low-confidence observations about what worked,
+what approach reduced corrections, or what pattern saved time.
+If nothing is worth capturing, output an empty list.
+
+Format:
+- content: \"observation text\"
+  confidence: 0.3
+  context: \"brief description of what triggered this\"" \
+  >> "$INSTINCTS_FILE"
+```
+
+### Promoting Instincts
+
+Instincts gain confidence through confirmation across different sessions. When one reaches high confidence, promote it to a concrete rule:
+
+```bash
+# View pending instincts
+cat ~/.claude/instincts/pending.yaml
+
+# Draft a CLAUDE.md rule from a high-confidence instinct
+claude --print "Convert this instinct into a CLAUDE.md rule:
+$(grep -A3 'content: "your instinct text"' ~/.claude/instincts/pending.yaml)"
+```
+
+The promotion step stays manual by design — you decide what gets encoded. The pipeline reduces the friction of *capturing* observations, not the friction of *validating* them.
+
+### Practical Setup
+
+1. Create `~/.claude/instincts/pending.yaml` (start empty)
+2. Add `capture-instincts.sh` as a Stop hook in `settings.json`
+3. Review weekly — 5 minutes maximum
+4. Promote 0–2 high-confidence instincts per week; delete the rest
+
+**What not to capture**: project-specific context (use memory), patterns you're already confident in (write the skill directly), one-off workarounds (let them go).
+
+> **Credit**: Instinct-based learning pipeline and the Stop hook capture pattern from [Everything Claude Code v2](https://github.com/affaan-m/everything-claude-code) (Affaan Mustafa). The confidence scoring, decay model, and instinct → skill evolution pipeline are their original contribution.
+
+> **See also**: [§9.23 Configuration Lifecycle & The Update Loop](#923-configuration-lifecycle--the-update-loop) — deliberate maintenance vs. incidental capture
 
 ---
 

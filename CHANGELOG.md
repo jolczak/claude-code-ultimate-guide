@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `guide/ultimate-guide.md` §7.6 Hook Profiles: environment-variable-based hook gating (minimal/standard/strict) for scaling hooks across teams without one-size-fits-all enforcement. Per-hook level assignment via `HOOK_REQUIRED_LEVEL` env prefix. Credit: Everything Claude Code (Affaan Mustafa).
+- `guide/ultimate-guide.md` §9.24 Instinct-Based Continuous Learning: lightweight observation capture at Stop hook (not UserPromptSubmit), confidence scoring, decay model, and promotion pipeline from instincts to CLAUDE.md rules or skills. Credit: Everything Claude Code v2.
+- `guide/workflows/agent-teams.md` §9 Iterative Retrieval for Sub-Agents: max-3-cycles retrieval budget for sub-agents lacking context. WHY/WHAT separation pattern for sub-agent task prompts. Credit: Everything Claude Code longform guide.
+- `guide/security/production-safety.md` Rule 6 Autonomous Loop Safety: heartbeat dead-man switch with process-group kill (not just parent). PostToolUse heartbeat writer + separate watchdog script. Timeout tuning table by task type. Credit: Everything Claude Code Security Guide.
+- `examples/agents/loop-monitor.md`: new agent template for monitoring unattended autonomous sessions. Detects stalls (no activity > threshold), token runaway (high rate vs baseline), and repeated action loops (same call N times). Haiku model, read-only, pairs with watchdog.
+- `examples/commands/session-save.md`: new command template for structured session handoff. Captures decisions, modified files, current status, and ordered next steps into a timestamped Markdown file.
+
 ## [3.37.8] - 2026-03-27
 
 ### Changed

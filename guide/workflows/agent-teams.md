@@ -1310,6 +1310,69 @@ echo "dist/" >> .gitignore
 
 ---
 
+## 9. Iterative Retrieval for Sub-Agents
+
+When a sub-agent lacks context to complete its task accurately, the default failure mode is: it makes assumptions and generates plausible-but-wrong output. The output looks reasonable enough to pass a quick review, but breaks downstream.
+
+**The pattern**: give sub-agents a retrieval budget — they can request more context up to N cycles before committing to a response. Three cycles covers most cases while bounding cost and latency.
+
+### Structure
+
+```
+Cycle 1: Agent receives task + initial context
+         → If confident: produce output
+         → If uncertain: identify what's missing, request specific files or symbols
+
+Cycle 2: Agent receives requested context
+         → If confident: produce output
+         → If still uncertain: one final targeted request
+
+Cycle 3: Agent receives final context
+         → Produce best output regardless of remaining uncertainty
+         → Flag explicit assumptions made
+```
+
+### What to Pass Sub-Agents
+
+The most common mistake: giving a sub-agent the WHAT without the WHY. An agent that knows it's "implementing a retry mechanism for the payment service" has context that saves correction cycles:
+
+```markdown
+## Objective
+[WHY this task exists — the problem being solved, the constraint being met]
+
+## Task
+[WHAT to do, specifically]
+
+## Context
+Files you have access to: [...]
+Known constraints: [...]
+What NOT to touch: [...]
+
+## If you need more information
+You may request up to 2 additional context cycles. Be specific:
+- Name the exact files or symbols you need
+- Explain why they're required to complete the task accurately
+State explicitly: "I need [X] because [Y]" — not "I might need more context"
+
+## Output format
+[...]
+```
+
+### When to Apply This
+
+| Situation | Use iterative retrieval? |
+|-----------|------------------------|
+| Sub-agent modifies 1–2 known files | No — provide the files directly |
+| Sub-agent needs to understand system behavior | Yes — it may need to trace call graphs |
+| Sub-agent makes architectural decisions | Yes — always |
+| Sub-agent writes tests for existing code | Often — it needs to read what it's testing |
+
+The overhead is real (each cycle costs tokens and latency). Apply it to tasks where wrong assumptions would cost more than the retrieval — typically anything touching interfaces, contracts, or public APIs.
+
+> **Credit**: Iterative retrieval pattern for sub-agents from [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) (Affaan Mustafa). The max-3-cycles bound and the WHY/WHAT separation are documented in their longform guide.
+
+---
+
 ## 10. Sources
 
 ### Official Anthropic Sources
