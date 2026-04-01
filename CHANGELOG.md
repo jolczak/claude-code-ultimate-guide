@@ -6,9 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`/audit-whitepapers` command**: New diagnostic command that audits all whitepapers (FR + EN) and recap cards (FR + EN) for version freshness, FR/EN parity, and metadata quality. Scores each document out of 100 across 4 phases (version gap 40pts, content staleness 20pts, parity 20pts, metadata 20pts) with A-F grading. Supports `--fix` (frontmatter patch suggestions), `--verbose` (all criteria), `--wp-only`, `--cards-only`. Feeds into `/update-whitepapers` for systematic updates.
+
 ### Fixed
 
 - **check-cache-bugs command**: Added missing YAML frontmatter (`name` + `description` fields) — command was not recognized by Claude Code slash command system (reported by genesiscz in CC#40524)
+- **check-cache-bugs background section**: Corrected cost impact estimate from "10-20x" to "2-5x on input tokens" (early community estimates conflated system prompt portion with total session cost); added source-verified mechanism details for all three bugs including fingerprint algorithm (SHA256, salt, char indices), messages-level vs system prompt level cache distinction for Bug 2, and Bug 1 speculative status clarification
+- **known-issues.md**: Added Section 0 documenting prompt cache bugs (CC#40524) — Bug 3 attribution header, Bug 2 deferred_tools_delta on --resume, Bug 1 sentinel; includes per-bug root cause, workaround, and link to /check-cache-bugs audit command
 
 ### Documentation
 

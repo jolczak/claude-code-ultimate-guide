@@ -5,23 +5,43 @@ description: Audit Claude Code setup for cache bugs (CC#40524) — sentinel, --r
 
 # Check Cache Bugs (CC#40524)
 
-Audit your Claude Code setup for three cache bugs discovered in March 2026 that can silently inflate API costs by 10-20x.
+Audit your Claude Code setup for three cache bugs discovered in March 2026 that silently inflate API costs by 2-5x on input tokens.
 
 **Time**: ~20 seconds | **Scope**: version, config files, CLAUDE.md, skills, hooks, shell profiles, all claude binaries
 
-**Reference**: `anthropics/claude-code#40524` | **Discovered by**: `u/skibidi-toaleta-2137` (r/ClaudeAI) + `@whiletrue0x` (GitHub)
+**Reference**: `anthropics/claude-code#40524` | **Discovered by**: `u/skibidi-toaleta-2137` (r/ClaudeAI) + `@whiletrue0x` + `@jmarianski` (GitHub)
 
 ---
 
 ## Background
 
-Three independent bugs cause Claude Code's prompt cache to break silently:
+Three independent bugs break Anthropic's prefix-based prompt caching, causing `cache_creation` charges
+instead of `cache_read` on the ~12K-token system prompt. Confirmed via source code analysis of the
+leaked npm sourcemap (March 2026). Cost impact: 2-5x inflation on input tokens (not 10-20x total —
+early community estimates conflated system prompt tokens with total session cost).
 
-- **Bug 1** (standalone binary, v2.1.36+, edge case): A native string replacement in Anthropic's custom Bun/Zig fork is baked into the Zig HTTP header builder at the native layer — invisible from JavaScript, fires after `JSON.stringify` but before TLS. On every `/v1/messages` request, it searches the JSON body for the first occurrence of `cch=00000` and replaces it with a 5-char body hash. In normal usage only `system[0]` is affected (which has `cache_control: null`), so no cache impact. It only breaks cache if `cch=00000` leaks into `messages[]` — from a CLAUDE.md discussing the mechanism, a tool reading the CC bundle source, or the user typing it literally. 62 real-project transcripts verified: zero accidental leaks in normal usage.
-- **Bug 2** (v2.1.69+): The `deferred_tools_delta` attachment introduced in v2.1.69 causes `messages[0]` to differ between fresh and resumed sessions, independently breaking cache prefix matching on every `--resume` or `--continue`. Confirmed still present in v2.1.88.
-- **Bug 3** (v2.1.69+, widest impact): `cli.js` injects `x-anthropic-billing-header` as the first system prompt block, containing a per-conversation hash (3-char SHA-256 of first user message + version) that changes on every new session and every subagent call. This causes a full `cache_creation` on the system prompt (~12K tokens) instead of `cache_read` on every session start and Agent invocation. A/B tested: cache hit ratio goes from 48% to 99.98% with the env var fix.
+- **Bug 1** (standalone binary, v2.1.36+, low/speculative): Bun's native HTTP stack performs a
+  same-length byte replacement of the `cch=00000` attestation placeholder in the serialized request
+  body after `JSON.stringify` but before TLS. If `cch=00000` appears literally in `messages[]`
+  content (e.g., a CLAUDE.md discussing this bug), the Zig layer may replace it in the wrong
+  location. Whether the search is bounded or naive is unconfirmed from the TypeScript side — failure
+  mode is likely a 400 error, not a silent cache miss. Edge case in normal usage.
 
-Status: partial fix shipped in v2.1.88 (tool schema bytes). Bugs 2 and 3 still active as of v2.1.88.
+- **Bug 2** (v2.1.69+, medium): The `deferred_tools_delta` attachment mechanism (introduced v2.1.69)
+  stores tool pool announcements as persistent inline messages in the conversation. On `--resume`,
+  these attachments are restored at their original positions, which differ from where a fresh session
+  places them — breaking the messages-level cache prefix. Anthropic is tracking this internally
+  (confirmed in source telemetry). Status: still active in v2.1.88.
+
+- **Bug 3** (v2.1.69+, high, widest impact): Claude Code injects a billing header as the **first
+  block** of the system prompt on every API request. The header contains a 3-character SHA-256 hash
+  derived from characters at positions [4, 7, 20] of the first user message + CC version. This makes
+  the header unique per session, per subagent, and per side query. Since Anthropic's cache is
+  prefix-based, this unique first block invalidates all downstream cached blocks on every invocation.
+  A session spawning 5 subagents = 6 cold misses on ~12K tokens. Empirical measurement: 48% →
+  99.98% cache hit ratio with the env var fix. Status: still active in v2.1.88.
+
+Partial fix shipped in v2.1.88 (tool schema bytes). Bugs 2 and 3 remain active.
 
 ---
 

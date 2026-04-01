@@ -8,12 +8,82 @@ tags: [reference, security, debugging]
 
 This document tracks verified, critical issues affecting Claude Code users based on community reports and official communications.
 
-> **Last Updated**: January 28, 2026
+> **Last Updated**: April 1, 2026
 > **Source**: [GitHub Issues](https://github.com/anthropics/claude-code/issues) + [Anthropic Official Communications](https://www.anthropic.com/engineering)
 
 ---
 
 ## 🚨 Active Critical Issues
+
+### 0. Prompt Cache Bugs — Silent Cost Inflation (Mar 2026 - Present)
+
+**Severity**: 🔴 **HIGH - COST IMPACT**
+**Status**: ⚠️ PARTIALLY FIXED (Bug 3 and Bug 2 still active as of v2.1.88)
+**Issue**: [#40524](https://github.com/anthropics/claude-code/issues/40524)
+**First Reported**: March 2026
+**Affected Versions**: v2.1.69+ (Bugs 2 & 3), v2.1.36+ standalone binary (Bug 1)
+
+#### Problem
+
+Three independent bugs break Anthropic's prefix-based prompt caching, causing `cache_creation` charges
+(full token cost) instead of `cache_read` (discounted) on the ~12K-token system prompt. This inflates
+API costs by **2-5x on input tokens** across sessions, subagent calls, and side queries.
+
+> **Basis**: Confirmed via community reverse-engineering (CC#40524) and source code analysis of the
+> leaked npm sourcemap. Anthropic shipped a partial fix in v2.1.88 (tool schema bytes). Bugs 2 and 3
+> remain unpatched.
+
+#### Bug 3 — Attribution Header (widest impact, v2.1.69+)
+
+**Root cause**: Claude Code injects a billing header as the **first block** of the system prompt on
+every API request. This header contains a 3-character hash derived from characters of your first
+user message, making it unique per session, per subagent, and per side query. Since Anthropic's cache
+is prefix-based, this unique first block invalidates all downstream cached blocks every time.
+
+**Impact**: A session spawning 5 subagents = 6 cold misses on ~12K tokens. Measured cache hit ratio:
+48% without workaround → 99.98% with workaround.
+
+**Workaround** (apply immediately):
+```json
+// ~/.claude/settings.json
+{
+  "env": {
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "false"
+  }
+}
+```
+Accepted values: `"false"`, `"0"`, `"no"`, `"off"`. No restart needed.
+
+#### Bug 2 — Cache Prefix Mismatch on --resume / --continue (v2.1.69+)
+
+**Root cause**: A new mechanism for announcing deferred tools (`deferred_tools_delta`) stores tool
+announcements as persistent inline messages in the conversation history. On `--resume`, these
+messages are restored at their original positions, which differs from where a fresh session would
+place them, breaking the messages-level cache prefix.
+
+**Workaround**: Avoid `--resume` and `--continue` until a fix ships. Start fresh sessions.
+Anthropic is tracking this internally.
+
+#### Bug 1 — Sentinel String Replacement (standalone binary v2.1.36+, edge case)
+
+**Root cause**: Bun's native HTTP stack replaces a `cch=00000` placeholder in the request body
+after serialization. If this exact string appears in your message content (e.g., from a CLAUDE.md
+that discusses this bug), it may be replaced in the wrong location.
+
+**Workaround**: Do not paste `cch=00000` literally in CLAUDE.md or config files.
+Note: this only affects the standalone binary, not npm/npx installs.
+
+#### Audit Tool
+
+Run `/check-cache-bugs` (install from the [examples/commands](https://github.com/FlorianBruniaux/claude-code-ultimate-guide/blob/main/examples/commands/check-cache-bugs.md) directory) to audit your setup for all three bugs in ~20 seconds.
+
+#### Official Response
+
+Partial fix in v2.1.88 (tool schema bytes). Bugs 2 and 3 confirmed still active.
+
+**Tracking**: [Issue #40524](https://github.com/anthropics/claude-code/issues/40524) (open since March 2026)
+
+---
 
 ### 1. GitHub Issue Auto-Creation in Wrong Repository (Dec 2025 - Present)
 
