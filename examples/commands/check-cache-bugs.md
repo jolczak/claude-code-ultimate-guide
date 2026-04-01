@@ -27,19 +27,22 @@ early community estimates conflated system prompt tokens with total session cost
   location. Whether the search is bounded or naive is unconfirmed from the TypeScript side — failure
   mode is likely a 400 error, not a silent cache miss. Edge case in normal usage.
 
-- **Bug 2** (v2.1.69+, medium): The `deferred_tools_delta` attachment mechanism (introduced v2.1.69)
-  stores tool pool announcements as persistent inline messages in the conversation. On `--resume`,
-  these attachments are restored at their original positions, which differ from where a fresh session
-  places them — breaking the messages-level cache prefix. Anthropic is tracking this internally
-  (confirmed in source telemetry). Status: still active in v2.1.88.
+- **Bug 2** (v2.1.69+, HIGH): The session JSONL writer strips `deferred_tools_delta` attachment
+  records before writing to disk. On `--resume`, those records are gone — the deferred tools layer
+  has no prior announcement history and re-announces all tools from scratch. This shifts every
+  message position in the restored conversation, breaking the messages-level cache prefix entirely.
+  Concrete evidence: every resume event drops `cache_read` to 0 and rebuilds 87-118K tokens as
+  `cache_creation`. 3-4 resumes per session = 300-400K tokens of avoidable cost. Scales with number
+  of skills/deferred tools — 10+ skills = worst case. Anthropic tracking internally (inc-4747).
+  Status: still active in v2.1.88.
 
-- **Bug 3** (v2.1.69+, high, widest impact): Claude Code injects a billing header as the **first
-  block** of the system prompt on every API request. The header contains a 3-character SHA-256 hash
-  derived from characters at positions [4, 7, 20] of the first user message + CC version. This makes
-  the header unique per session, per subagent, and per side query. Since Anthropic's cache is
-  prefix-based, this unique first block invalidates all downstream cached blocks on every invocation.
-  A session spawning 5 subagents = 6 cold misses on ~12K tokens. Empirical measurement: 48% →
-  99.98% cache hit ratio with the env var fix. Status: still active in v2.1.88.
+- **Bug 3** (v2.1.69+, low-to-medium): Claude Code injects a billing header as the **first block**
+  of the system prompt on every API request. The header contains a 3-character SHA-256 hash derived
+  from characters at positions [4, 7, 20] of the first user message + CC version, making it unique
+  per session/subagent/side-query. Since the cache is prefix-based, this causes a cold miss on the
+  ~12K-token system prompt on every invocation. Per the original RE analyst (jmarianski): "marginal
+  impact" in practice relative to total session cost — Bug 2 is larger for heavy users. Empirical:
+  48% → 99.98% cache hit with env var fix (combined effect). Status: still active in v2.1.88.
 
 Partial fix shipped in v2.1.88 (tool schema bytes). Bugs 2 and 3 remain active.
 

@@ -33,17 +33,49 @@ API costs by **2-5x on input tokens** across sessions, subagent calls, and side 
 > leaked npm sourcemap. Anthropic shipped a partial fix in v2.1.88 (tool schema bytes). Bugs 2 and 3
 > remain unpatched.
 
-#### Bug 3 — Attribution Header (widest impact, v2.1.69+)
+#### Bug 2 — Full cache rebuild on --resume / --continue (v2.1.69+) — HIGH IMPACT
+
+**Root cause**: The session JSONL writer strips `deferred_tools_delta` attachment records before
+writing to disk. On `--resume`, those records are gone — so the deferred tools layer has no prior
+announcement history and re-announces all tools from scratch. This shifts every message position in
+the restored conversation, breaking the messages-level cache prefix entirely.
+
+**Concrete evidence** (from community session JSONL analysis, sessions with 14 skills):
+
+| Entry | cache_read | cache_creation | Event |
+|-------|-----------|----------------|-------|
+| 102 | 84,164 | 174 | Normal turn |
+| 103 | 0 | 87,176 | **Resume — full rebuild** |
+| 105 | 87,176 | 561 | Recovered |
+| 166 | 115,989 | 221 | Normal turn |
+| 167 | 0 | 118,523 | **Resume — full rebuild** |
+
+Each resume = 87-118K tokens rebuilt as `cache_creation` instead of `cache_read`. 3-4 resumes per
+session = 300-400K tokens of avoidable cost. Impact scales with number of skills/deferred tools:
+users with 10+ skills (common in framework setups) see the full 0% cache ratio on every resume.
+
+**Workaround**: Avoid `--resume` and `--continue` until a fix ships. Start fresh sessions.
+Anthropic is tracking this internally (referenced in source telemetry as `inc-4747`).
+
+**Engineering fix**: preserve `deferred_tools_delta` and `mcp_instructions_delta` records when
+writing session JSONL, so resume can compute the delta correctly instead of re-announcing everything.
+
+#### Bug 3 — Attribution Header (low-to-medium impact, v2.1.69+)
 
 **Root cause**: Claude Code injects a billing header as the **first block** of the system prompt on
 every API request. This header contains a 3-character hash derived from characters of your first
 user message, making it unique per session, per subagent, and per side query. Since Anthropic's cache
-is prefix-based, this unique first block invalidates all downstream cached blocks every time.
+is prefix-based, this unique first block causes a cold miss on the ~12K-token system prompt on every
+session start and subagent call.
 
-**Impact**: A session spawning 5 subagents = 6 cold misses on ~12K tokens. Measured cache hit ratio:
-48% without workaround → 99.98% with workaround.
+**Nuance** (per jmarianski, original RE analyst): the per-session system prompt cold miss has
+"marginal impact" in practice because the system prompt is small relative to total session context.
+The resume bug (Bug 2) has a larger measurable cost for heavy users.
 
-**Workaround** (apply immediately):
+**Empirical measurement**: 48% → 99.98% cache hit ratio with workaround — but this reflects combined
+effect with other cache factors; the isolated Bug 3 impact may be smaller.
+
+**Workaround** (apply immediately, low risk):
 ```json
 // ~/.claude/settings.json
 {
@@ -53,16 +85,6 @@ is prefix-based, this unique first block invalidates all downstream cached block
 }
 ```
 Accepted values: `"false"`, `"0"`, `"no"`, `"off"`. No restart needed.
-
-#### Bug 2 — Cache Prefix Mismatch on --resume / --continue (v2.1.69+)
-
-**Root cause**: A new mechanism for announcing deferred tools (`deferred_tools_delta`) stores tool
-announcements as persistent inline messages in the conversation history. On `--resume`, these
-messages are restored at their original positions, which differs from where a fresh session would
-place them, breaking the messages-level cache prefix.
-
-**Workaround**: Avoid `--resume` and `--continue` until a fix ships. Start fresh sessions.
-Anthropic is tracking this internally.
 
 #### Bug 1 — Sentinel String Replacement (standalone binary v2.1.36+, edge case)
 

@@ -13,8 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - **check-cache-bugs command**: Added missing YAML frontmatter (`name` + `description` fields) — command was not recognized by Claude Code slash command system (reported by genesiscz in CC#40524)
-- **check-cache-bugs background section**: Corrected cost impact estimate from "10-20x" to "2-5x on input tokens" (early community estimates conflated system prompt portion with total session cost); added source-verified mechanism details for all three bugs including fingerprint algorithm (SHA256, salt, char indices), messages-level vs system prompt level cache distinction for Bug 2, and Bug 1 speculative status clarification
-- **known-issues.md**: Added Section 0 documenting prompt cache bugs (CC#40524) — Bug 3 attribution header, Bug 2 deferred_tools_delta on --resume, Bug 1 sentinel; includes per-bug root cause, workaround, and link to /check-cache-bugs audit command
+- **check-cache-bugs + known-issues: Bug 2 mechanism corrected** (per fivedollarfridays CC#40524): root cause is session JSONL writer stripping `deferred_tools_delta` records before write, not position mismatch on restore. On --resume, full DTD re-announcement shifts all message positions → 0% cache ratio on every resume. Concrete evidence: 87-118K tokens rebuilt per resume, 300-400K/session with 3-4 resumes. Severity upgraded from MEDIUM to HIGH.
+- **known-issues + check-cache-bugs: Bug 3 severity recalibrated** (per jmarianski, original RE analyst): "marginal impact" on session tokens in practice — system prompt is small relative to total context. Bug 2 has larger measurable cost for heavy users.
+- **check-cache-bugs background section**: Corrected cost impact estimate from "10-20x" to "2-5x on input tokens" (early community estimates conflated system prompt portion with total session cost); added source-verified mechanism details for all three bugs
+- **known-issues.md**: Added Section 0 documenting prompt cache bugs (CC#40524) with per-bug root cause, workaround, concrete JSONL data for Bug 2, and link to /check-cache-bugs audit command
 
 ### Documentation
 
